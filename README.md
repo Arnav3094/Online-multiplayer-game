@@ -28,3 +28,28 @@ It uses Android Navigation Component, with a single activity and three fragments
 | Arnav Mangla        | 2022A7PS0244G | f20220244@goa.bits-pilani.ac.in |
 | Prakhar Kumar Gupta | 2022A7PS1145G | f20221145@goa.bits-pilani.ac.in |
 
+## Description
+
+## Known Bugs
+No known bugs
+
+## Implementation Summary
+
+## Accessibility
+
+### Accessibility Scanner
+
+### Experience using Talkback
+
+## Testing Approach
+
+## Time Taken
+
+## Time Taken
+
+## Assignment difficulty
+
+## Attribution
+- [Assignment Documentation]()  
+- Class Slides & Lectures
+- ChatGPT & Claude
