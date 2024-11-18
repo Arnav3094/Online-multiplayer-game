@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "877923393970",
+    "firebase_url": "https://tic-tac-toe-a-5-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "tic-tac-toe-a-5",
+    "storage_bucket": "tic-tac-toe-a-5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:877923393970:android:11358db3bc94c6144344ab",
+        "android_client_info": {
+          "package_name": "androidsamples.java.tictactoe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo9wWBBc9m-WuPXx_gs9J30ZESVRl1z9I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:877923393970:android:95bd8b0fefaecd564344ab",
+        "android_client_info": {
+          "package_name": "com.android.application"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDo9wWBBc9m-WuPXx_gs9J30ZESVRl1z9I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
