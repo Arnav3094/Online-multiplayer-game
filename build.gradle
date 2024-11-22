@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:8.5.2'
         
-        classpath 'com.google.gms:google-services:4.3.10' //added for firebase
+        classpath 'com.google.gms:google-services:4.4.1' //added for firebase
 
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.8.2"
         // NOTE: Do not place your application dependencies here; they belong
@@ -22,6 +22,6 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
+tasks.register('clean', Delete) {
     delete rootProject.buildDir
 }

@@ -1,9 +1,8 @@
 plugins {
   id 'com.android.application'
   id 'com.google.gms.google-services' //for firebase
+  id 'androidx.navigation.safeargs'
 }
-
-apply plugin: "androidx.navigation.safeargs"
 
 android {
   compileSdkVersion 34
@@ -43,11 +42,12 @@ dependencies {
   implementation 'androidx.appcompat:appcompat:1.7.0' // firebase
   implementation 'com.google.android.material:material:1.12.0' // firebase
   implementation 'androidx.constraintlayout:constraintlayout:2.1.4' // firebase
-  implementation 'com.google.firebase:firebase-database:20.0.2' // firebase
-//  implementation 'com.google.firebase:firebase-core:21.3.0'
 
-  implementation 'com.google.firebase:firebase-auth:22.3.0' // firebase
-  implementation 'com.google.firebase:firebase-firestore:24.9.1' // firebase
+  // Firebase dependencies
+  implementation platform('com.google.firebase:firebase-bom:32.3.0')
+  implementation 'com.google.firebase:firebase-database'
+  implementation 'com.google.firebase:firebase-auth'
+  implementation 'com.google.firebase:firebase-firestore'
 
   testImplementation 'junit:junit:4.13.2'
   androidTestImplementation 'androidx.test.ext:junit:1.2.1'
