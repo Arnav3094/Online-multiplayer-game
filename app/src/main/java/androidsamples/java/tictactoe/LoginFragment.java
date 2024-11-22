@@ -19,7 +19,13 @@ public class LoginFragment extends Fragment {
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate: called");
-		// TODO if a user is logged in, go to Dashboard
+		FirebaseManager firebaseManager = FirebaseManager.getInstance();
+		if (firebaseManager.isSignedIn()) {
+			Log.d(TAG, "onCreate: User already signed in");
+			NavDirections action = LoginFragmentDirections.actionLoginSuccessful();
+			Log.d(TAG, "onCreate: navigating to dashboard fragment");
+			Navigation.findNavController(requireView()).navigate(action);
+		}
 	}
 	
 	@Override
