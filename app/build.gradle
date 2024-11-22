@@ -45,6 +45,10 @@ dependencies {
   implementation 'androidx.constraintlayout:constraintlayout:2.1.4' // firebase
   implementation 'com.google.firebase:firebase-database:20.0.2' // firebase
 //  implementation 'com.google.firebase:firebase-core:21.3.0'
+
+  implementation 'com.google.firebase:firebase-auth:22.3.0' // firebase
+  implementation 'com.google.firebase:firebase-firestore:24.9.1' // firebase
+
   testImplementation 'junit:junit:4.13.2'
   androidTestImplementation 'androidx.test.ext:junit:1.2.1'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
