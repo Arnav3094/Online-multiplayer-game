@@ -17,6 +17,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
+import com.google.firebase.FirebaseApp;
+
 public class DashboardFragment extends Fragment {
 	
 	private static final String TAG = "DashboardFragment";
@@ -48,8 +50,18 @@ public class DashboardFragment extends Fragment {
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		mNavController = Navigation.findNavController(view);
+		FirebaseApp.initializeApp(requireContext());
+		FirebaseManager firebaseManager = FirebaseManager.getInstance();
 		
-		// TODO if a user is not logged in, go to LoginFragment
+		// Check if the user is not logged in
+		if(!firebaseManager.isSignedIn()){
+			Log.d(TAG, "onViewCreated: User not signed in");
+			NavDirections action = DashboardFragmentDirections.actionNeedAuth();
+			Log.d(TAG, "onViewCreated: navigating to login fragment");
+			mNavController.navigate(action);
+			return;
+		}
+		
 		
 		// Show a dialog when the user clicks the "new game" button
 		view.findViewById(R.id.fab_new_game).setOnClickListener(v -> {
