@@ -1,5 +1,7 @@
 package androidsamples.java.tictactoe;
 
+import android.util.Log;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -9,7 +11,10 @@ public class FirebaseManager {
 	private final FirebaseAuth auth;
 	private final FirebaseFirestore db;
 	
+	private final static String TAG = "FirebaseManager";
+	
 	private FirebaseManager() {
+		Log.d(TAG, "FirebaseManager: created");
 		auth = FirebaseAuth.getInstance();
 		db = FirebaseFirestore.getInstance();
 	}
