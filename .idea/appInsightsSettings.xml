@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="androidsamples.java.tictactoe" />
+                  <option name="mobileSdkAppId" value="1:877923393970:android:11358db3bc94c6144344ab" />
+                  <option name="projectId" value="tic-tac-toe-a-5" />
+                  <option name="projectNumber" value="877923393970" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
