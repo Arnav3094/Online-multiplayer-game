@@ -40,9 +40,9 @@ dependencies {
   implementation 'androidx.navigation:navigation-ui:2.8.2'
   implementation 'androidx.legacy:legacy-support-v4:1.0.0'
   implementation 'androidx.recyclerview:recyclerview:1.3.2'
-  implementation 'androidx.appcompat:appcompat:1.3.1' // firebase
-  implementation 'com.google.android.material:material:1.4.0' // firebase
-  implementation 'androidx.constraintlayout:constraintlayout:2.1.2' // firebase
+  implementation 'androidx.appcompat:appcompat:1.7.0' // firebase
+  implementation 'com.google.android.material:material:1.12.0' // firebase
+  implementation 'androidx.constraintlayout:constraintlayout:2.1.4' // firebase
   implementation 'com.google.firebase:firebase-database:20.0.2' // firebase
 //  implementation 'com.google.firebase:firebase-core:21.3.0'
   testImplementation 'junit:junit:4.13.2'
