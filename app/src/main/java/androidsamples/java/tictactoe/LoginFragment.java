@@ -28,6 +28,13 @@ public class LoginFragment extends Fragment {
 		}
 	}
 	
+	/**
+	 * Check if email exists in the database
+	 * If email exists
+	 *      if password matches -> navigate to dashboard + show snackbar saying logged in
+	 *      else                -> show snackbar saying incorrect email or password
+	 * else -> show snackbar saying sign up successful or new account created
+	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_login, container, false);
