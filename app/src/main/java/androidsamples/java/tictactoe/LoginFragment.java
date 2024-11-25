@@ -20,11 +20,11 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 public class LoginFragment extends Fragment {
-	
+
 	private final static String TAG = "LoginFragment";
 	private LoginViewModel viewModel;
 	private FirebaseManager firebaseManager;
-	
+
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -40,7 +40,7 @@ public class LoginFragment extends Fragment {
 		Log.d(TAG, "onCreate: initializing view model");
 		viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 	}
-	
+
 	/**
 	 * Check if email exists in the database
 	 * If email exists
@@ -51,39 +51,44 @@ public class LoginFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_login, container, false);
-		
+
 		EditText etEmail = view.findViewById(R.id.edit_email);
 		EditText etPassword = view.findViewById(R.id.edit_password);
-		
+
 		etEmail.setText(viewModel.getEmail());
 		etPassword.setText(viewModel.getPassword());
-		
+
 		etEmail.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-		
+
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
-		
+
 			@Override
 			public void afterTextChanged(Editable s) {
 				viewModel.setEmail(s.toString().trim());
 			}
 		});
-		
+
 		etPassword.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-		
+
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
-		
+
 			@Override
 			public void afterTextChanged(Editable s) {
 				viewModel.setPassword(s.toString().trim());
 			}
 		});
-		
+		view.findViewById(R.id.btn_go_to_register)
+				.setOnClickListener(v -> {
+					NavDirections action = LoginFragmentDirections.actionLoginToRegister();
+					Navigation.findNavController(v).navigate(action);
+				});
+
 		view.findViewById(R.id.btn_log_in)
 				.setOnClickListener(v -> {
 					// TODO implement sign in logic
@@ -108,32 +113,14 @@ public class LoginFragment extends Fragment {
 							NavDirections action = LoginFragmentDirections.actionLoginSuccessful();
 							Navigation.findNavController(v).navigate(action);
 						}
-						
+
 						@Override
 						public void onError(Exception e) {
 							if(e instanceof FirebaseAuthInvalidCredentialsException){
 								Log.e(TAG, "signIn:onError: invalidCredential - ", e);
 								Snackbar.make(v, "Incorrect email or password", Snackbar.LENGTH_SHORT).show();
 							}
-							else if(e instanceof FirebaseAuthInvalidUserException){
-								Log.e(TAG, "signIn:onError: invalidUser - ", e);
-								firebaseManager.signUp(email, password, new FirebaseManager.OnAuthCompleteListener() {
-									@Override
-									public void onSuccess() {
-										Log.d(TAG, "signIn:onError:onSuccess: new account created");
-										Snackbar.make(v, "New account created", Snackbar.LENGTH_SHORT).show();
-										viewModel.clear();
-										NavDirections action = LoginFragmentDirections.actionLoginSuccessful();
-										Navigation.findNavController(v).navigate(action);
-									}
-									
-									@Override
-									public void onError(Exception e) {
-										Log.e(TAG, "onError:onError: ", e);
-										Snackbar.make(v, "Sign up failed", Snackbar.LENGTH_SHORT).show();
-									}
-								});
-							} else{
+							else{
 								Log.e(TAG, "signIn:onError: ", e);
 								Snackbar.make(v, "Sign in failed", Snackbar.LENGTH_SHORT).show();
 							}
@@ -142,6 +129,6 @@ public class LoginFragment extends Fragment {
 				});
 		return view;
 	}
-	
+
 	// No options menu in login fragment.
 }

@@ -6,7 +6,7 @@
   <string name="game_fragment_label">Tic Tac Toe: Game</string>
   <string name="dashboard_fragment_label">Tic Tac Toe: Dashboard</string>
 
-  <string name="login">Register or Log In</string>
+  <string name="login">Log In</string>
   <string name="logout">Log Out</string>
 
   <string name="new_game">New Game</string>
@@ -24,4 +24,7 @@
   <string name="yes">Yes</string>
   <string name="cancel">Cancel</string>
   <string name="confirm">Confirm</string>
+    <string name="register">New members, Register here!!</string>
+  <string name="confirm_password">Confirm Password</string>
+  <string name="register_fragment_label">Register_fragment_label string</string>
 </resources>
