@@ -74,7 +74,7 @@ public class RegisterFragment extends Fragment {
                                         // Sign in success, update UI with the signed-in user's information
                                         Log.d(TAG, "createUserWithEmail:success");
                                         FirebaseUser user = mAuth.getCurrentUser();
-//                                        saveUserToRealtimeDatabase(email); // Save to Realtime Database
+                                        saveUserToRealtimeDatabase(email); // Save to Realtime Database
                                         Snackbar.make(v, "Registration successful. Please log in.", Snackbar.LENGTH_SHORT).show();
                                         viewModel.clear();
                                         NavDirections action = RegisterFragmentDirections.actionRegisterToLogin();
