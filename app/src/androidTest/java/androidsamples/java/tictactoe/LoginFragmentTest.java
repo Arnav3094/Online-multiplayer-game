@@ -1,5 +1,6 @@
 package androidsamples.java.tictactoe;
 
+import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -13,6 +14,7 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,13 +23,14 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class LoginFragmentTest {
 	
+	private final String email = "test@test.test";
+	private final String password = "testtest";
+	
 	@Rule
 	public ActivityScenarioRule<MainActivity> activityScenarioRule = new ActivityScenarioRule<>(MainActivity.class);
 	
 	@Test
 	public void testSuccessfulLogin() {
-		String email = "test@test.test";
-		String password = "testtest";
 		
 		// Simulate entering valid credentials
 		onView(withId(R.id.edit_email)).perform(typeText(email));
