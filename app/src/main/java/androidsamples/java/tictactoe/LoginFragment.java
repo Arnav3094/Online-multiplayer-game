@@ -82,6 +82,7 @@ public class LoginFragment extends Fragment {
 				viewModel.setPassword(s.toString().trim());
 			}
 		});
+		
 		view.findViewById(R.id.btn_go_to_register)
 				.setOnClickListener(v -> {
 					NavDirections action = LoginFragmentDirections.actionLoginToRegister();
