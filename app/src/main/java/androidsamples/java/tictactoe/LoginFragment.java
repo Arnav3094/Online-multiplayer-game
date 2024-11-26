@@ -16,7 +16,10 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+
+import java.util.Objects;
 
 public class LoginFragment extends Fragment {
 
@@ -115,11 +118,10 @@ public class LoginFragment extends Fragment {
 
 						@Override
 						public void onError(Exception e) {
-							if(e instanceof FirebaseAuthInvalidCredentialsException){
-								Log.e(TAG, "signIn:onError: invalidCredential - ", e);
+							if(e instanceof FirebaseAuthInvalidCredentialsException || (e instanceof FirebaseException && Objects.requireNonNull(e.getMessage()).contains("INVALID_LOGIN_CREDENTIALS"))){
+								Log.w(TAG, "signIn:onError: invalidCredential - " + e.getMessage());
 								SnackbarHelper.showSnackbar(v, "Invalid email or password", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
-							}
-							else{
+							}else{
 								Log.e(TAG, "signIn:onError: ", e);
 								SnackbarHelper.showSnackbar(v, "Sign In failed", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
 							}
