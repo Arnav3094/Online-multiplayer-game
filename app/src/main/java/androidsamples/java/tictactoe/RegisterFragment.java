@@ -1,6 +1,8 @@
 package androidsamples.java.tictactoe;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,14 +24,15 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 public class RegisterFragment extends Fragment {
 
     private static final String TAG = "RegisterFragment";
-    private LoginViewModel viewModel;
+    private RegisterViewModel viewModel;
     private FirebaseManager firebaseManager;
     
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: called");
         firebaseManager = FirebaseManager.getInstance();
-        viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
+        viewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
     }
 
     @Nullable
@@ -43,6 +46,46 @@ public class RegisterFragment extends Fragment {
 
         etEmail.setText(viewModel.getEmail());
         etPassword.setText(viewModel.getPassword());
+        etConfirmPassword.setText(viewModel.getConfirmPassword());
+        
+        etEmail.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                viewModel.setEmail(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+        
+        etPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                viewModel.setPassword(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+        
+        etConfirmPassword.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                viewModel.setConfirmPassword(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
 
         view.findViewById(R.id.btn_register)
                 .setOnClickListener(v -> {
