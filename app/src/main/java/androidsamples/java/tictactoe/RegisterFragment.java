@@ -86,6 +86,8 @@ public class RegisterFragment extends Fragment {
             @Override
             public void afterTextChanged(Editable s) {}
         });
+        
+        view.findViewById(R.id.txt_have_account).setOnClickListener(this::navigateToLogin);
 
         view.findViewById(R.id.btn_register)
                 .setOnClickListener(v -> {
@@ -107,9 +109,7 @@ public class RegisterFragment extends Fragment {
                         @Override
                         public void onSuccess() {
                             SnackbarHelper.showSnackbar(v, "Registration successful. Please log in.");
-                            viewModel.clear();
-                            NavDirections action = RegisterFragmentDirections.actionRegisterToLogin();
-                            Navigation.findNavController(v).navigate(action);
+                            navigateToLogin(v);
                         }
                         
                         @Override
@@ -160,5 +160,11 @@ public class RegisterFragment extends Fragment {
                 });
 
         return view;
+    }
+    
+    private void navigateToLogin(View view) {
+        viewModel.clear();
+        NavDirections action = RegisterFragmentDirections.actionRegisterToLogin();
+        Navigation.findNavController(view).navigate(action);
     }
 }
