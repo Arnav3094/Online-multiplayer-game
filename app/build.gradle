@@ -22,7 +22,6 @@ android {
 
     buildTypes {
         debug{
-            debuggable true
             buildConfigField "boolean", "USE_FIREBASE_EMULATOR", "true"
         }
         release {
