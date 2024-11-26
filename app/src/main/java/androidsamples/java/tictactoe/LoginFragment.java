@@ -17,7 +17,6 @@ import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 public class LoginFragment extends Fragment {
 
@@ -91,7 +90,6 @@ public class LoginFragment extends Fragment {
 
 		view.findViewById(R.id.btn_log_in)
 				.setOnClickListener(v -> {
-					// TODO implement sign in logic
 					String email = etEmail.getText().toString().trim();
 					String password = etPassword.getText().toString().trim();
 
