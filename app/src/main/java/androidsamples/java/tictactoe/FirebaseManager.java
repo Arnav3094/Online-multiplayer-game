@@ -8,14 +8,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class FirebaseManager {
 	private static FirebaseManager instance;
-	private final FirebaseAuth auth;
+	private final FirebaseAuth mAuth;
 	private final FirebaseFirestore db;
 
 	private final static String TAG = "FirebaseManager";
 
 	private FirebaseManager() {
 		Log.d(TAG, "FirebaseManager: created");
-		auth = FirebaseAuth.getInstance();
+		mAuth = FirebaseAuth.getInstance();
 		db = FirebaseFirestore.getInstance();
 	}
 
@@ -27,7 +27,7 @@ public class FirebaseManager {
 	}
 
 	public void signUp(String email, String password, OnAuthCompleteListener listener) {
-		auth.createUserWithEmailAndPassword(email, password)
+		mAuth.createUserWithEmailAndPassword(email, password)
 				.addOnSuccessListener(authResult -> {
 					FirebaseUser user = authResult.getUser();
 					// Initialize user data in Firestore
@@ -42,21 +42,21 @@ public class FirebaseManager {
 	}
 
 	public void signIn(String email, String password, OnAuthCompleteListener listener) {
-		auth.signInWithEmailAndPassword(email, password)
+		mAuth.signInWithEmailAndPassword(email, password)
 				.addOnSuccessListener(authResult -> listener.onSuccess())
 				.addOnFailureListener(listener::onError);
 	}
 
 	public void signOut() {
-		auth.signOut();
+		mAuth.signOut();
 	}
 
 	public boolean isSignedIn() {
-		return auth.getCurrentUser() != null;
+		return mAuth.getCurrentUser() != null;
 	}
 
 	public String getCurrentUserId() {
-		FirebaseUser user = auth.getCurrentUser();
+		FirebaseUser user = mAuth.getCurrentUser();
 		return user != null ? user.getUid() : null;
 	}
 
