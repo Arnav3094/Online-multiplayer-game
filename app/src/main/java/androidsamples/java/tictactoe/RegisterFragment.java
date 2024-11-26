@@ -97,18 +97,18 @@ public class RegisterFragment extends Fragment {
                     String confirmPassword = etConfirmPassword.getText().toString().trim();
 
                     if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                        SnackbarHelper.showSnackbar(v, "All fields are required", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
+                        SnackbarHelper.showSnackbar(v, "All fields are required", Snackbar.LENGTH_LONG, R.color.design_default_color_error);
                         return;
                     }
 
                     if (!password.equals(confirmPassword)) {
-                        SnackbarHelper.showSnackbar(v, "Passwords do not match", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
+                        SnackbarHelper.showSnackbar(v, "Passwords do not match", Snackbar.LENGTH_LONG, R.color.design_default_color_error);
                         return;
                     }
                     firebaseManager.signUp(email, password, new FirebaseManager.OnAuthCompleteListener() {
                         @Override
                         public void onSuccess() {
-                            SnackbarHelper.showSnackbar(v, "Registration successful. Please log in.");
+                            SnackbarHelper.showSnackbar(v, "Registration successful", Snackbar.LENGTH_LONG);
                             navigateToLogin(v);
                         }
                         
