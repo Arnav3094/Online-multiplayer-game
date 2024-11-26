@@ -17,8 +17,15 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class GameFragment extends Fragment {
@@ -29,8 +36,9 @@ public class GameFragment extends Fragment {
 	private NavController mNavController;
 	private String mGameId;
 	private boolean isSinglePlayer;
-	private char[] board; // 'X', 'O', or empty (' ')
-	private char currentPlayer;
+	private String currentTurn = "X"; // X or O
+	private List<String> gameState;
+	private DatabaseReference mGameRef;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -40,22 +48,18 @@ public class GameFragment extends Fragment {
 
 		GameFragmentArgs args = GameFragmentArgs.fromBundle(getArguments());
 		String gameType = args.getGameType();
-		Log.d(TAG, "Game type: " + gameType);
+		isSinglePlayer = "One-Player".equals(gameType);
 
-		isSinglePlayer = (args.getGameType().equals("One-Player"));
-		if (isSinglePlayer) {
-			Log.d(TAG, "Starting a single-player game.");
-			initializeSinglePlayerGame();
+		mGameId = args.getGameId();
+		FirebaseDatabase database = FirebaseDatabase.getInstance();
+		mGameRef = database.getReference("games").child(mGameId);
+
+		if (Objects.equals(mGameId, "NULL")) {
+			Log.d(TAG, "Creating a new game.");
+			createNewGame();
 		} else {
-			Log.d(TAG, "Starting a two-player game.");
-			mGameId = args.getGameId();
-			if (mGameId == null) {
-				Log.d(TAG, "Game ID is null. Creating a new game for two players.");
-				createNewGame();
-			} else {
-				Log.d(TAG, "Game ID is " + mGameId + ". Joining an existing game.");
-				joinExistingGame(mGameId);
-			}
+			Log.d(TAG, "Joining existing game with ID: " + mGameId);
+			joinExistingGame();
 		}
 
 		OnBackPressedCallback callback = new OnBackPressedCallback(true) {
@@ -69,10 +73,7 @@ public class GameFragment extends Fragment {
 							Log.d(TAG, "User confirmed forfeit. Navigating back.");
 							mNavController.popBackStack();
 						})
-						.setNegativeButton(R.string.cancel, (d, which) -> {
-							Log.d(TAG, "User canceled forfeit.");
-							d.dismiss();
-						})
+						.setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
 						.create();
 				dialog.show();
 			}
@@ -89,117 +90,188 @@ public class GameFragment extends Fragment {
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		mNavController = Navigation.findNavController(view);
-
-		board = new char[GRID_SIZE];
+		Log.d(TAG, "IN THE GAME");
 		for (int i = 0; i < GRID_SIZE; i++) {
-			board[i] = ' ';
 			int finalI = i;
 			String buttonId = "button" + i;
 			int resId = getResources().getIdentifier(buttonId, "id", requireContext().getPackageName());
 			mButtons[i] = view.findViewById(resId);
-			mButtons[i].setOnClickListener(v -> {
-				Log.d(TAG, "Button " + finalI + " clicked.");
-				if (board[finalI] == ' ') {
-					handlePlayerMove(finalI);
-				} else {
-					Log.d(TAG, "Cell " + finalI + " is already occupied.");
-				}
-			});
+			mButtons[i].setOnClickListener(v -> handleMove(finalI));
+		}
+
+		if (!isSinglePlayer) {
+			listenToGameUpdates();
 		}
 	}
 
-	private void initializeSinglePlayerGame() {
-		currentPlayer = 'X'; // Player starts as 'X'
-		Log.d(TAG, "Single-player game initialized. Player is 'X', computer is 'O'.");
-	}
-
-	private void handlePlayerMove(int cellIndex) {
-		board[cellIndex] = currentPlayer;
-		mButtons[cellIndex].setText(String.valueOf(currentPlayer));
-		Log.d(TAG, "Player " + currentPlayer + " marked cell " + cellIndex);
-
-		if (checkWinCondition()) {
-			Log.d(TAG, "Player " + currentPlayer + " won the game!");
-			showWinDialog(currentPlayer);
+	private void createNewGame() {
+		mGameId = FirebaseDatabase.getInstance().getReference("games").push().getKey();
+		if (mGameId == null) {
+			Log.e(TAG, "Failed to generate unique gameId");
 			return;
 		}
 
-		switchPlayer();
-		if (isSinglePlayer && currentPlayer == 'O') {
-			handleComputerMove();
-		}
-
-	}
-
-	private void handleComputerMove() {
-		Log.d(TAG, "Computer's turn.");
-		List<Integer> availableCells = new ArrayList<>();
+		gameState = new ArrayList<>();
 		for (int i = 0; i < GRID_SIZE; i++) {
-			if (board[i] == ' ') {
-				availableCells.add(i);
-			}
+			gameState.add("");
 		}
 
-		if (!availableCells.isEmpty()) {
-			int randomCell = availableCells.get(new Random().nextInt(availableCells.size()));
-			board[randomCell] = currentPlayer;
-			mButtons[randomCell].setText(String.valueOf(currentPlayer));
-			Log.d(TAG, "Computer marked cell " + randomCell);
+		// Save game data to Firebase
+		mGameRef = FirebaseDatabase.getInstance().getReference("games").child(mGameId);
+		mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState))
+				.addOnSuccessListener(aVoid -> Log.d(TAG, "New Game Created with ID: " + mGameId))
+				.addOnFailureListener(e -> Log.e(TAG, "Failed to create new game", e));
+	}
 
-			if (checkWinCondition()) {
-				Log.d(TAG, "Computer won the game!");
-				showWinDialog(currentPlayer);
-				return;
+	private void joinExistingGame() {
+		mGameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot snapshot) {
+				GameData data = snapshot.getValue(GameData.class);
+				if (data != null) {
+					currentTurn = data.currentTurn;
+					gameState = data.gameState;
+					Log.d(TAG, "Successfully joined game with ID: " + mGameId);
+					updateUI();
+				} else {
+					Log.e(TAG, "Game not found in database with ID: " + mGameId);
+				}
 			}
 
-			switchPlayer();
+			@Override
+			public void onCancelled(@NonNull DatabaseError error) {
+				Log.e(TAG, "Failed to fetch game data", error.toException());
+			}
+		});
+	}
+
+	private void handleMove(int index) {
+		if (!gameState.get(index).isEmpty() || (!isSinglePlayer && !currentTurn.equals("X"))) {
+			return;
+		}
+
+		gameState.set(index, currentTurn);
+		updateUI();
+
+		if (checkWin()) {
+			mGameRef.child("winner").setValue(currentTurn);
+			showWinDialog(currentTurn);
+		} else if (isDraw()) {
+			mGameRef.child("winner").setValue("Draw");
+			showWinDialog("Draw");
+		} else {
+			switchTurn();
+			if (isSinglePlayer && currentTurn.equals("O")) {
+				makeComputerMove();
+			}
+			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState));
 		}
 	}
 
-	private void switchPlayer() {
-		currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
-		Log.d(TAG, "Switched to player " + currentPlayer);
+	private void switchTurn() {
+		currentTurn = currentTurn.equals("X") ? "O" : "X";
 	}
 
-	private boolean checkWinCondition() {
-		int[][] winPatterns = {
-				{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, // Rows
-				{0, 3, 6}, {1, 4, 7}, {2, 5, 8}, // Columns
-				{0, 4, 8}, {2, 4, 6}             // Diagonals
+	private void makeComputerMove() {
+		Random random = new Random();
+		int move;
+		do {
+			move = random.nextInt(GRID_SIZE);
+		} while (!gameState.get(move).isEmpty());
+
+		gameState.set(move, currentTurn);
+		updateUI();
+
+		if (checkWin()) {
+			mGameRef.child("winner").setValue(currentTurn);
+			showWinDialog(currentTurn);
+		} else if (isDraw()) {
+			mGameRef.child("winner").setValue("Draw");
+			showWinDialog("Draw");
+		} else {
+			switchTurn();
+		}
+	}
+
+	private boolean checkWin() {
+		int[][] winConditions = {
+				{0, 1, 2}, {3, 4, 5}, {6, 7, 8},
+				{0, 3, 6}, {1, 4, 7}, {2, 5, 8},
+				{0, 4, 8}, {2, 4, 6}
 		};
-		for (int[] pattern : winPatterns) {
-			if (board[pattern[0]] != ' ' &&
-					board[pattern[0]] == board[pattern[1]] &&
-					board[pattern[1]] == board[pattern[2]]) {
+
+		for (int[] condition : winConditions) {
+			String a = gameState.get(condition[0]);
+			String b = gameState.get(condition[1]);
+			String c = gameState.get(condition[2]);
+			if (!a.isEmpty() && a.equals(b) && b.equals(c)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private void showWinDialog(char winner) {
-		String message = (winner == 'X') ? "Player wins!" : (isSinglePlayer ? "Computer wins!" : "Player O wins!");
-		AlertDialog dialog = new AlertDialog.Builder(requireActivity())
+	private boolean isDraw() {
+		for (String cell : gameState) {
+			if (cell.isEmpty()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void updateUI() {
+		for (int i = 0; i < GRID_SIZE; i++) {
+			mButtons[i].setText(gameState.get(i));
+		}
+	}
+
+	private void listenToGameUpdates() {
+		mGameRef.addValueEventListener(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot snapshot) {
+				GameData data = snapshot.getValue(GameData.class);
+				if (data != null) {
+					currentTurn = data.currentTurn;
+					gameState = data.gameState;
+					updateUI();
+				}
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError error) {
+				Log.e(TAG, "Failed to listen for game updates", error.toException());
+			}
+		});
+	}
+
+	private void showWinDialog(String winner) {
+		String message = "Draw".equals(winner) ? "It's a draw!" : winner + " wins!";
+		new AlertDialog.Builder(requireActivity())
 				.setTitle("Game Over")
 				.setMessage(message)
-				.setPositiveButton("OK", (d, which) -> mNavController.popBackStack())
-				.create();
-		dialog.show();
-	}
-
-	private void createNewGame() {
-		Log.d(TAG, "Initializing Firebase to create a new game.");
-		// TODO: Add Firebase logic to create a new game entry
-	}
-
-	private void joinExistingGame(String gameId) {
-		Log.d(TAG, "Joining the existing game with ID: " + gameId);
-		// TODO: Add Firebase logic to fetch and sync the game state
+				.setPositiveButton("OK", (dialog, which) -> mNavController.popBackStack())
+				.create()
+				.show();
 	}
 
 	@Override
 	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.menu_logout, menu);
+	}
+
+	static class GameData {
+		public boolean isSinglePlayer;
+		public String currentTurn;
+		public List<String> gameState;
+
+		public GameData() {}
+
+		public GameData(boolean isSinglePlayer, String currentTurn, List<String> gameState) {
+			this.isSinglePlayer = isSinglePlayer;
+			this.currentTurn = currentTurn;
+			this.gameState = gameState;
+		}
 	}
 }

@@ -78,6 +78,7 @@ public class DashboardFragment extends Fragment {
 
 				// Passing the game type as a parameter to the action
 				// extract it in GameFragment in a type safe way
+//				-OCckDEyPAUmyDPeFXQ5
 				NavDirections action = DashboardFragmentDirections.actionGame(gameType,"NULL");
 				mNavController.navigate(action);
 			};
