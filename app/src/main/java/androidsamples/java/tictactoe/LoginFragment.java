@@ -86,11 +86,10 @@ public class LoginFragment extends Fragment {
 			}
 		});
 		
-		view.findViewById(R.id.btn_go_to_register)
-				.setOnClickListener(v -> {
-					NavDirections action = LoginFragmentDirections.actionLoginToRegister();
-					Navigation.findNavController(v).navigate(action);
-				});
+		view.findViewById(R.id.txt_dont_have_account).setOnClickListener(v -> {
+			NavDirections action = LoginFragmentDirections.actionLoginToRegister();
+			Navigation.findNavController(v).navigate(action);
+		});
 
 		view.findViewById(R.id.btn_log_in)
 				.setOnClickListener(v -> {
