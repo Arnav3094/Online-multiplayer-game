@@ -2,6 +2,12 @@
   <string name="app_name">Tic Tac Toe</string>
   <string name="placeholder">Placeholder</string>
 
+  <string name="score_placeholder">Score: Wins: 0, Losses: 0</string>
+  <string name="new_game">Start New Game</string>
+  <string name="game_name_placeholder">Game #1</string>
+  <string name="player_placeholder">Player: John Doe</string>
+
+
   <string name="login_fragment_label">Login</string>
   <string name="game_fragment_label">Tic Tac Toe: Game</string>
   <string name="dashboard_fragment_label">Tic Tac Toe: Dashboard</string>
@@ -9,7 +15,6 @@
   <string name="login">Log In</string>
   <string name="logout">Log Out</string>
 
-  <string name="new_game">New Game</string>
   <string name="email">Email</string>
   <string name="password">Password</string>
 

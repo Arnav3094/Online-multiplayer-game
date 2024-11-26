@@ -75,10 +75,10 @@ public class DashboardFragment extends Fragment {
 					gameType = getString(R.string.one_player);
 				}
 				Log.d(TAG, "New Game: " + gameType);
-				
+
 				// Passing the game type as a parameter to the action
 				// extract it in GameFragment in a type safe way
-				NavDirections action = DashboardFragmentDirections.actionGame(gameType);
+				NavDirections action = DashboardFragmentDirections.actionGame(gameType,"NULL");
 				mNavController.navigate(action);
 			};
 			
