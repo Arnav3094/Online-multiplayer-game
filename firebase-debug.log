@@ -1,0 +1,32 @@
+[debug] [2024-11-26T16:28:41.206Z] ----------------------------------------------------------------------
+[debug] [2024-11-26T16:28:41.208Z] Command:       /Users/arnavmangla/.nvm/versions/node/v20.14.0/bin/node /Users/arnavmangla/.nvm/versions/node/v20.14.0/bin/firebase emulators:start --only auth
+[debug] [2024-11-26T16:28:41.209Z] CLI Version:   13.27.0
+[debug] [2024-11-26T16:28:41.209Z] Platform:      darwin
+[debug] [2024-11-26T16:28:41.209Z] Node Version:  v20.14.0
+[debug] [2024-11-26T16:28:41.209Z] Time:          Tue Nov 26 2024 21:58:41 GMT+0530 (India Standard Time)
+[debug] [2024-11-26T16:28:41.209Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2024-11-26T16:28:41.266Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2024-11-26T16:28:41.267Z] > authorizing via signed-in user (f20220244@goa.bits-pilani.ac.in)
+[info] i  emulators: Starting emulators: auth {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: auth"}}
+[debug] [2024-11-26T16:28:41.551Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-11-26T16:28:41.551Z] [auth] Authentication Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2024-11-26T16:28:41.551Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"ui":[{"address":"127.0.0.1","family":"IPv4","port":4000},{"address":"::1","family":"IPv6","port":4000}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"auth":[{"address":"127.0.0.1","family":"IPv4","port":9099}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2024-11-26T16:28:41.553Z] [hub] writing locator at /var/folders/p7/mwgwt9vs4c15_87xt2gw_94m0000gn/T/hub-tic-tac-toe-a-5.json
+[debug] [2024-11-26T16:28:43.665Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+│ i  View Emulator UI at http://127.0.0.1:4000/               │
+└─────────────────────────────────────────────────────────────┘
+
+┌────────────────┬────────────────┬────────────────────────────┐
+│ Emulator       │ Host:Port      │ View in Emulator UI        │
+├────────────────┼────────────────┼────────────────────────────┤
+│ Authentication │ 127.0.0.1:9099 │ http://127.0.0.1:4000/auth │
+└────────────────┴────────────────┴────────────────────────────┘
+  Emulator Hub running at 127.0.0.1:4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
