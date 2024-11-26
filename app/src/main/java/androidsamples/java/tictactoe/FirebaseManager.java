@@ -6,7 +6,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class FirebaseManager {
 	private static FirebaseManager instance;
@@ -44,6 +43,7 @@ public class FirebaseManager {
 									}
 								});
 					}
+					listener.onSuccess();
 				})
 				.addOnFailureListener(listener::onError);
 	}
