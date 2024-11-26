@@ -110,8 +110,6 @@ public class RegisterFragment extends Fragment {
                             viewModel.clear();
                             NavDirections action = RegisterFragmentDirections.actionRegisterToLogin();
                             Navigation.findNavController(v).navigate(action);
-                            // TODO: Build view model for registration
-                            // clear the view model
                         }
                         
                         @Override
@@ -123,7 +121,9 @@ public class RegisterFragment extends Fragment {
                                 view.findViewById(R.id.edit_password).clearFocus();
                                 view.findViewById(R.id.edit_confirm_password).clearFocus();
                                 
-                                // TODO: clear view model password
+                                // clear view model password
+                                viewModel.setPassword("");
+                                viewModel.setConfirmPassword("");
                                 
                                 // set focus to enter password
                                 view.findViewById(R.id.edit_password).requestFocus();
@@ -131,16 +131,6 @@ public class RegisterFragment extends Fragment {
                             } else if (e instanceof FirebaseAuthInvalidCredentialsException) {
                                 Log.w(TAG, "signUp:onError: invalid email - " + e.getMessage());
                                 SnackbarHelper.showSnackbar(v, "Invalid email", Snackbar.LENGTH_LONG, R.color.design_default_color_error);
-                                // clear email and pass
-                                view.findViewById(R.id.edit_email).clearFocus();
-                                view.findViewById(R.id.edit_password).clearFocus();
-                                view.findViewById(R.id.edit_confirm_password).clearFocus();
-                                
-                                // TODO: clear view model email and password
-                                
-                                // set focus to enter email
-                                view.findViewById(R.id.edit_email).requestFocus();
-                                
                             } else if (e instanceof FirebaseAuthUserCollisionException) {
                                 Log.w(TAG, "signUp:onError: user already exists - " + e.getMessage());
                                 SnackbarHelper.showSnackbar(v, "User already exists", Snackbar.LENGTH_LONG, R.color.design_default_color_error);
@@ -150,7 +140,10 @@ public class RegisterFragment extends Fragment {
                                 view.findViewById(R.id.edit_password).clearFocus();
                                 view.findViewById(R.id.edit_confirm_password).clearFocus();
                                 
-                                // TODO: clear view model email and password
+                                // clear view model email and password
+                                viewModel.setEmail("");
+                                viewModel.setPassword("");
+                                viewModel.setConfirmPassword("");
                                 
                                 // set focus to enter email
                                 view.findViewById(R.id.edit_email).requestFocus();
