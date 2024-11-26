@@ -24,7 +24,8 @@
   <string name="yes">Yes</string>
   <string name="cancel">Cancel</string>
   <string name="confirm">Confirm</string>
-    <string name="register">New members, Register here!!</string>
+  <string name="register">New members, Register here!!</string>
   <string name="confirm_password">Confirm Password</string>
   <string name="register_fragment_label">Register_fragment_label string</string>
+  <string name="create_account">Create Account</string>
 </resources>
