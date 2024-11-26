@@ -37,6 +37,7 @@ public class GameFragment extends Fragment {
 	private String mGameId;
 	private boolean isSinglePlayer;
 	private String currentTurn = "X"; // X or O
+	private String mySymbol = "";
 	private List<String> gameState;
 	private DatabaseReference mGameRef;
 
@@ -56,9 +57,11 @@ public class GameFragment extends Fragment {
 
 		if (Objects.equals(mGameId, "NULL")) {
 			Log.d(TAG, "Creating a new game.");
+			mySymbol = "X";
 			createNewGame();
 		} else {
 			Log.d(TAG, "Joining existing game with ID: " + mGameId);
+			mySymbol = "O";
 			joinExistingGame();
 		}
 
@@ -146,7 +149,7 @@ public class GameFragment extends Fragment {
 	}
 
 	private void handleMove(int index) {
-		if (!gameState.get(index).isEmpty() || (!isSinglePlayer && !currentTurn.equals("X"))) {
+		if (!gameState.get(index).isEmpty() || (!isSinglePlayer && !currentTurn.equals(mySymbol))) {
 			return;
 		}
 
