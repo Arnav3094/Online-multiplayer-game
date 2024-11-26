@@ -97,11 +97,11 @@ public class LoginFragment extends Fragment {
 					String password = etPassword.getText().toString().trim();
 
 					if (email.isEmpty()) {
-						SnackbarHelper.showSnackbar(v, "Please enter email");
+						SnackbarHelper.showSnackbar(requireView(), "Please enter email");
 						return;
 					}else{
 						if (password.isEmpty()) {
-							SnackbarHelper.showSnackbar(v, "Please enter password");
+							SnackbarHelper.showSnackbar(requireView(), "Please enter password");
 							return;
 						}
 					}
@@ -109,7 +109,7 @@ public class LoginFragment extends Fragment {
 						@Override
 						public void onSuccess() {
 							Log.d(TAG, "signIn:onSuccess: log in successful");
-							SnackbarHelper.showSnackbar(v, "Logged in");
+							SnackbarHelper.showSnackbar(requireView(), "Logged in");
 							viewModel.clear();
 							NavDirections action = LoginFragmentDirections.actionLoginSuccessful();
 							Navigation.findNavController(v).navigate(action);
@@ -119,10 +119,10 @@ public class LoginFragment extends Fragment {
 						public void onError(Exception e) {
 							if(e instanceof FirebaseAuthInvalidCredentialsException || (e instanceof FirebaseException && Objects.requireNonNull(e.getMessage()).contains("INVALID_LOGIN_CREDENTIALS"))){
 								Log.w(TAG, "signIn:onError: invalidCredential - " + e.getMessage());
-								SnackbarHelper.showSnackbar(v, "Invalid email or password", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
+								SnackbarHelper.showSnackbar(requireView(), "Invalid email or password", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
 							}else{
 								Log.e(TAG, "signIn:onError: ", e);
-								SnackbarHelper.showSnackbar(v, "Sign In failed", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
+								SnackbarHelper.showSnackbar(requireView(), "Sign In failed", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
 							}
 						}
 					});
