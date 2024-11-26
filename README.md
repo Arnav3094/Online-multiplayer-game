@@ -53,3 +53,4 @@ No known bugs
 - [Assignment Documentation]()  
 - Class Slides & Lectures
 - ChatGPT & Claude
+- [SO - How to change background color of the snackbar?](https://stackoverflow.com/questions/34020891/how-to-change-background-color-of-the-snackbar)
