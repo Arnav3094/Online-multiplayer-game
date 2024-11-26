@@ -11,14 +11,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class FirebaseManager {
 	private static FirebaseManager instance;
 	private final FirebaseAuth mAuth;
-	private final FirebaseFirestore db;
 
 	private final static String TAG = "FirebaseManager";
 
 	private FirebaseManager() {
 		Log.d(TAG, "FirebaseManager: created");
 		mAuth = FirebaseAuth.getInstance();
-		db = FirebaseFirestore.getInstance();
 	}
 
 	public static synchronized FirebaseManager getInstance() {
