@@ -50,7 +50,9 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
 			FirebaseDatabase database = FirebaseDatabase.getInstance();
 			mGameRef = database.getReference("games").child(gameId);
 			FirebaseManager firebaseManager = FirebaseManager.getInstance();
-			mGameRef.child("player2").setValue(firebaseManager.getCurrentUserEmail());
+			if(!(firebaseManager.getCurrentUserEmail().equals("player1"))) {
+				mGameRef.child("player2").setValue(firebaseManager.getCurrentUserEmail());
+			}
 			NavDirections action = DashboardFragmentDirections.actionGame("two_player", gameId);
 			Navigation.findNavController(v).navigate(action);
 		});
