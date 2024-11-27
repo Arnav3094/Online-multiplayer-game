@@ -32,8 +32,10 @@
 
   <Button
       android:id="@+id/button0"
-      android:layout_width="@dimen/btn_size"
-      android:layout_height="@dimen/btn_size"
+      android:layout_width="wrap_content"
+      android:minWidth="@dimen/btn_size"
+      android:layout_height="wrap_content"
+      android:minHeight="@dimen/btn_size"
       android:layout_marginVertical="@dimen/btn_margin_vert"
       android:layout_marginHorizontal="@dimen/btn_margin_horiz"
       android:text="@string/blank"
@@ -45,8 +47,10 @@
 
   <Button
       android:id="@+id/button1"
-      android:layout_width="@dimen/btn_size"
-      android:layout_height="@dimen/btn_size"
+      android:layout_width="wrap_content"
+      android:minWidth="@dimen/btn_size"
+      android:layout_height="wrap_content"
+      android:minHeight="@dimen/btn_size"
       android:layout_marginVertical="@dimen/btn_margin_vert"
       android:layout_marginHorizontal="@dimen/btn_margin_horiz"
       android:text="@string/blank"
@@ -58,8 +62,10 @@
 
   <Button
       android:id="@+id/button2"
-      android:layout_width="@dimen/btn_size"
-      android:layout_height="@dimen/btn_size"
+      android:layout_width="wrap_content"
+      android:minWidth="@dimen/btn_size"
+      android:layout_height="wrap_content"
+      android:minHeight="@dimen/btn_size"
       android:layout_marginVertical="@dimen/btn_margin_vert"
       android:layout_marginHorizontal="@dimen/btn_margin_horiz"
       android:text="@string/blank"
@@ -71,8 +77,10 @@
 
   <Button
       android:id="@+id/button3"
-      android:layout_width="@dimen/btn_size"
-      android:layout_height="@dimen/btn_size"
+      android:layout_width="wrap_content"
+      android:minWidth="@dimen/btn_size"
+      android:layout_height="wrap_content"
+      android:minHeight="@dimen/btn_size"
       android:layout_marginVertical="@dimen/btn_margin_vert"
       android:layout_marginHorizontal="@dimen/btn_margin_horiz"
       android:text="@string/blank"
@@ -84,8 +92,10 @@
 
   <Button
       android:id="@+id/button4"
-      android:layout_width="@dimen/btn_size"
-      android:layout_height="@dimen/btn_size"
+      android:layout_width="wrap_content"
+      android:minWidth="@dimen/btn_size"
+      android:layout_height="wrap_content"
+      android:minHeight="@dimen/btn_size"
       android:layout_marginVertical="@dimen/btn_margin_vert"
       android:layout_marginHorizontal="@dimen/btn_margin_horiz"
       android:text="@string/blank"
@@ -98,8 +108,10 @@
 
   <Button
       android:id="@+id/button5"
-      android:layout_width="@dimen/btn_size"
-      android:layout_height="@dimen/btn_size"
+      android:layout_width="wrap_content"
+      android:minWidth="@dimen/btn_size"
+      android:layout_height="wrap_content"
+      android:minHeight="@dimen/btn_size"
       android:layout_marginVertical="@dimen/btn_margin_vert"
       android:layout_marginHorizontal="@dimen/btn_margin_horiz"
       android:text="@string/blank"
@@ -111,8 +123,10 @@
 
   <Button
       android:id="@+id/button6"
-      android:layout_width="@dimen/btn_size"
-      android:layout_height="@dimen/btn_size"
+      android:layout_width="wrap_content"
+      android:minWidth="@dimen/btn_size"
+      android:layout_height="wrap_content"
+      android:minHeight="@dimen/btn_size"
       android:layout_marginVertical="@dimen/btn_margin_vert"
       android:layout_marginHorizontal="@dimen/btn_margin_horiz"
       android:text="@string/blank"
@@ -124,8 +138,10 @@
 
   <Button
       android:id="@+id/button7"
-      android:layout_width="@dimen/btn_size"
-      android:layout_height="@dimen/btn_size"
+      android:layout_width="wrap_content"
+      android:minWidth="@dimen/btn_size"
+      android:layout_height="wrap_content"
+      android:minHeight="@dimen/btn_size"
       android:layout_marginVertical="@dimen/btn_margin_vert"
       android:layout_marginHorizontal="@dimen/btn_margin_horiz"
       android:text="@string/blank"
@@ -137,8 +153,10 @@
 
   <Button
       android:id="@+id/button8"
-      android:layout_width="@dimen/btn_size"
-      android:layout_height="@dimen/btn_size"
+      android:layout_width="wrap_content"
+      android:minWidth="@dimen/btn_size"
+      android:layout_height="wrap_content"
+      android:minHeight="@dimen/btn_size"
       android:layout_marginVertical="@dimen/btn_margin_vert"
       android:layout_marginHorizontal="@dimen/btn_margin_horiz"
       android:text="@string/blank"
