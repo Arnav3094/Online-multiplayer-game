@@ -1,7 +1,5 @@
 package androidsamples.java.tictactoe;
 
-import static java.lang.Thread.sleep;
-
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,8 +25,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +101,7 @@ public class GameFragment extends Fragment {
 				Log.d(TAG, "Player 2 Email: " + player2Email);
 				if(userEmail.equals(player1Email)) mySymbol = "X";
 				else mySymbol ="O";
-				Log.d(TAG, userEmail+" player1 "+player1Email+" mysymbol "+mySymbol);
+				Log.d(TAG, userEmail+" player1 " + player1Email + " mysymbol "+mySymbol);
 				
 				String youAreText = "You are: " + mySymbol;
 				txtYouAre.setText(youAreText);
@@ -181,7 +177,7 @@ public class GameFragment extends Fragment {
 		if (!isSinglePlayer) {
 			listenToGameUpdates();
 		}
-    else{
+        else{
 			if(currentTurn.equals("O")){
 				makeComputerMove();
 				Log.d(TAG,"Computer move in view Created");
@@ -197,11 +193,24 @@ public class GameFragment extends Fragment {
 		txtYouAre = view.findViewById(R.id.txt_you_are);
 		txtPlayingAgainst = view.findViewById(R.id.txt_playing_against);
 		
-		String playingAgainstText;
-		Log.d(TAG, "Player 2 Email::: " + player2Email);
-		if(player2Email.equals("NULL")) playingAgainstText = "Waiting for player to join...";
-		else playingAgainstText = "Playing against: " + ( userEmail.equals(player1Email) ? player2Email :  player1Email);
-		txtPlayingAgainst.setText(playingAgainstText);
+		mGameRef.child("player2").addValueEventListener(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot snapshot) {
+				player2Email = snapshot.getValue(String.class);
+				Log.d(TAG, "Player 2 Email:: " + player2Email);
+				String playingAgainstText;
+				if(player2Email.equals("NULL")) playingAgainstText = "Waiting for player to join...";
+				else playingAgainstText = "Playing against: " + ( userEmail.equals(player1Email) ? player2Email :  player1Email);
+				txtPlayingAgainst.setText(playingAgainstText);
+				
+			}
+			@Override
+			public void onCancelled(@NonNull DatabaseError error) {
+				Log.e(TAG, "Failed to fetch Player 2 Email", error.toException());
+			}
+		});
+		
+		
 	}
 
 	private void updateContentDescription(int i){
@@ -291,18 +300,15 @@ public class GameFragment extends Fragment {
 			//For sleeping
 
 			if (isSinglePlayer && currentTurn.equals("O")) {
-				new Handler().postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						Log.d(TAG,"Computer move");
-						makeComputerMove();
-						Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
-						Map<String, Object> updates = new HashMap<>();
-						updates.put("currentTurn",currentTurn);
-						updates.put("gameState",gameState);
-						updateGameFields(mGameId, updates);
-						return ;
-					}
+				new Handler().postDelayed(() -> {
+					Log.d(TAG,"Computer move");
+					makeComputerMove();
+					Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
+					Map<String, Object> updates = new HashMap<>();
+					updates.put("currentTurn",currentTurn);
+					updates.put("gameState",gameState);
+					updateGameFields(mGameId, updates);
+					return;
 				}, 500);
 			}
 //			sleep(1000);
@@ -347,7 +353,11 @@ public class GameFragment extends Fragment {
 
 	private void switchTurn() {
 		currentTurn = currentTurn.equals("X") ? "O" : "X";
-		txtTurn.setVisibility(currentTurn.equals(mySymbol) ? View.VISIBLE : View.INVISIBLE);
+		boolean myTurn = currentTurn.equals(mySymbol);
+		txtTurn.setVisibility(myTurn ? View.VISIBLE : View.INVISIBLE);
+		for(Button button : mButtons){
+			button.setEnabled(myTurn);
+		}
 	}
 
 	private void makeComputerMove() {
@@ -358,7 +368,7 @@ public class GameFragment extends Fragment {
 		} while (!gameState.get(move).isEmpty());
 
 		gameState.set(move, currentTurn);
-		Log.d(TAG,"In Computer: Before database setting value gamestate array "+gameState.toString() );
+		Log.d(TAG,"In Computer: Before database setting value gameState array " + gameState);
 		updateUI();
 
 		if (checkWin()) {
