@@ -48,6 +48,9 @@
     <argument
         android:name="gameType"
         app:argType="string" />
+    <action
+        android:id="@+id/action_need_auth"
+        app:destination="@id/loginFragment" />
     <argument
         android:name="GameId"
         app:argType="string" />
