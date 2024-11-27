@@ -99,6 +99,7 @@ public class GameFragment extends Fragment {
 									.setMessage(R.string.forfeit_game_dialog_message)
 									.setPositiveButton(R.string.yes, (d, which) -> {
 										Log.d(TAG, "User confirmed forfeit. Navigating back.");
+										//Loss for the player who forfeited
 										updatePlayerStats("loss");
 										mGameRef.child("winner").setValue((Objects.equals(mySymbol, "X"))?"O":"X");
 										mNavController.popBackStack();
@@ -106,7 +107,6 @@ public class GameFragment extends Fragment {
 									.setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
 									.create();
 							dialog.show();
-
 						} else {
 							// Winner exists
 							Log.d("GameFragment", "Winner is: " + winner);
@@ -207,6 +207,7 @@ public class GameFragment extends Fragment {
 	}
 
 	private void handleMove(int index) {
+//		if()
 		if (!gameState.get(index).isEmpty() || (!isSinglePlayer && !currentTurn.equals(mySymbol))) {
 			return;
 		}
@@ -219,7 +220,6 @@ public class GameFragment extends Fragment {
 			showWinDialog(currentTurn);
 		} else if (isDraw()) {
 			mGameRef.child("winner").setValue("Draw");
-//		FIX : add draw condition update on db
 			updatePlayerStats("draw");
 			showWinDialog("Draw");
 		} else {
@@ -323,6 +323,7 @@ public class GameFragment extends Fragment {
 			public void onDataChange(@NonNull DataSnapshot snapshot) {
 				GameData data = snapshot.getValue(GameData.class);
 				if (data != null) {
+//					otherForfeited = !(data.getWinner().equals("NULL"));
 					currentTurn = data.currentTurn;
 					gameState = data.gameState;
 					updateUI();
