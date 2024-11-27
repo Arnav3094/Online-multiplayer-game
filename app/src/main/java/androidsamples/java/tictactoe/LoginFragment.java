@@ -59,6 +59,7 @@ public class LoginFragment extends Fragment {
 	 */
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		Log.d(TAG, "onCreateView: called");
 		View view = inflater.inflate(R.layout.fragment_login, container, false);
 
 		etEmail = view.findViewById(R.id.edit_email);
@@ -69,6 +70,7 @@ public class LoginFragment extends Fragment {
 		etEmail.setText(viewModel.getEmail());
 		etPassword.setText(viewModel.getPassword());
 
+		Log.d(TAG, "onCreateView: setting text change listeners");
 		etEmail.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -99,22 +101,26 @@ public class LoginFragment extends Fragment {
 
 		btnLogin.setOnClickListener(v -> loginButtonAction());
 		
+		Log.d(TAG, "onCreateView: returning view");
 		return view;
 	}
 	
 	private void navigateToRegister(){
+		Log.d(TAG, "navigateToRegister: navigating to register fragment");
 		viewModel.clear();
 		NavDirections action = LoginFragmentDirections.actionLoginToRegister();
 		Navigation.findNavController(requireView()).navigate(action);
 	}
 	
 	private void navigateToDashboard(){
+		Log.d(TAG, "navigateToDashboard: navigating to dashboard fragment");
 		viewModel.clear();
 		NavDirections action = LoginFragmentDirections.actionLoginSuccessful();
 		Navigation.findNavController(requireView()).navigate(action);
 	}
 	
 	private void loginButtonAction(){
+		Log.d(TAG, "loginButtonAction: called");
 		String email = etEmail.getText().toString().trim();
 		String password = etPassword.getText().toString().trim();
 		
