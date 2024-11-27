@@ -181,9 +181,9 @@ public class DashboardFragment extends Fragment {
 		for (int i = 0; i < GRID_SIZE; i++) {
 			gameState.add("");
 		}
-		String secondPlayer = "";
+		String secondPlayer;
 		if(isSinglePlayer){
-			secondPlayer = "Single-Player-Mode";
+			secondPlayer = getResources().getString(R.string.single_player_2);
 		}
 		else{
 			secondPlayer = "NULL";
