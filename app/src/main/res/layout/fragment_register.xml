@@ -8,9 +8,12 @@
     <!-- Group the views together using a ConstraintLayout chain -->
     <EditText
         android:id="@+id/edit_email"
-        android:layout_width="0dp"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
+        android:autofillHints="emailAddress"
         android:hint="@string/email"
         android:inputType="textEmailAddress"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,9 +24,12 @@
 
     <EditText
         android:id="@+id/edit_password"
-        android:layout_width="0dp"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
+        android:autofillHints="password"
         android:hint="@string/password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,9 +39,12 @@
 
     <EditText
         android:id="@+id/edit_confirm_password"
-        android:layout_width="0dp"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
+        android:autofillHints="password"
         android:hint="@string/confirm_password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
@@ -45,13 +54,30 @@
 
     <Button
         android:id="@+id/btn_register"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="@string/register"
+        android:textSize="16sp"
+        android:text="@string/create_account"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/edit_confirm_password"
         app:layout_constraintBottom_toBottomOf="parent" />
+
+    <TextView
+        android:id="@+id/txt_have_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/already_have_an_account"
+        android:padding="10dp"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_register"
+        android:textSize="14sp"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/design_default_color_primary"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

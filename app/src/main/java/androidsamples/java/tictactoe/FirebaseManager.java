@@ -4,19 +4,18 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class FirebaseManager {
 	private static FirebaseManager instance;
 	private final FirebaseAuth mAuth;
-	private final FirebaseFirestore db;
 
 	private final static String TAG = "FirebaseManager";
 
 	private FirebaseManager() {
 		Log.d(TAG, "FirebaseManager: created");
 		mAuth = FirebaseAuth.getInstance();
-		db = FirebaseFirestore.getInstance();
 	}
 
 	public static synchronized FirebaseManager getInstance() {
@@ -32,11 +31,19 @@ public class FirebaseManager {
 					FirebaseUser user = authResult.getUser();
 					// Initialize user data in Firestore
 					if (user != null) {
-						db.collection("users").document(user.getUid())
-								.set(new UserData(user.getEmail(), 0, 0))
-								.addOnSuccessListener(aVoid -> listener.onSuccess())
-								.addOnFailureListener(listener::onError);
+						String userId = user.getUid();
+						DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+						// Save only the email in the Realtime Database
+						userRef.child("email").setValue(email)
+								.addOnCompleteListener(task -> {
+									if (task.isSuccessful()) {
+										Log.d(TAG, "User data saved to Realtime Database");
+									} else {
+										Log.e(TAG, "Failed to save user data", task.getException());
+									}
+								});
 					}
+					listener.onSuccess();
 				})
 				.addOnFailureListener(listener::onError);
 	}

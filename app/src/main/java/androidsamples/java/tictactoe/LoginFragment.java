@@ -16,8 +16,10 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+
+import java.util.Objects;
 
 public class LoginFragment extends Fragment {
 
@@ -83,24 +85,23 @@ public class LoginFragment extends Fragment {
 				viewModel.setPassword(s.toString().trim());
 			}
 		});
-		view.findViewById(R.id.btn_go_to_register)
-				.setOnClickListener(v -> {
-					NavDirections action = LoginFragmentDirections.actionLoginToRegister();
-					Navigation.findNavController(v).navigate(action);
-				});
+		
+		view.findViewById(R.id.txt_dont_have_account).setOnClickListener(v -> {
+			NavDirections action = LoginFragmentDirections.actionLoginToRegister();
+			Navigation.findNavController(v).navigate(action);
+		});
 
 		view.findViewById(R.id.btn_log_in)
 				.setOnClickListener(v -> {
-					// TODO implement sign in logic
 					String email = etEmail.getText().toString().trim();
 					String password = etPassword.getText().toString().trim();
 
 					if (email.isEmpty()) {
-						Snackbar.make(v, "Please enter email", Snackbar.LENGTH_SHORT).show();
+						SnackbarHelper.showSnackbar(requireView(), "Please enter email");
 						return;
 					}else{
 						if (password.isEmpty()) {
-							Snackbar.make(v, "Please enter password", Snackbar.LENGTH_SHORT).show();
+							SnackbarHelper.showSnackbar(requireView(), "Please enter password");
 							return;
 						}
 					}
@@ -108,7 +109,7 @@ public class LoginFragment extends Fragment {
 						@Override
 						public void onSuccess() {
 							Log.d(TAG, "signIn:onSuccess: log in successful");
-							Snackbar.make(v, "Logged in", Snackbar.LENGTH_SHORT).show();
+							SnackbarHelper.showSnackbar(requireView(), "Logged in");
 							viewModel.clear();
 							NavDirections action = LoginFragmentDirections.actionLoginSuccessful();
 							Navigation.findNavController(v).navigate(action);
@@ -116,13 +117,12 @@ public class LoginFragment extends Fragment {
 
 						@Override
 						public void onError(Exception e) {
-							if(e instanceof FirebaseAuthInvalidCredentialsException){
-								Log.e(TAG, "signIn:onError: invalidCredential - ", e);
-								Snackbar.make(v, "Incorrect email or password", Snackbar.LENGTH_SHORT).show();
-							}
-							else{
+							if(e instanceof FirebaseAuthInvalidCredentialsException || (e instanceof FirebaseException && Objects.requireNonNull(e.getMessage()).contains("INVALID_LOGIN_CREDENTIALS"))){
+								Log.w(TAG, "signIn:onError: invalidCredential - " + e.getMessage());
+								SnackbarHelper.showSnackbar(requireView(), "Invalid email or password", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
+							}else{
 								Log.e(TAG, "signIn:onError: ", e);
-								Snackbar.make(v, "Sign in failed", Snackbar.LENGTH_SHORT).show();
+								SnackbarHelper.showSnackbar(requireView(), "Sign In failed", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
 							}
 						}
 					});

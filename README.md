@@ -53,3 +53,6 @@ No known bugs
 - [Assignment Documentation]()  
 - Class Slides & Lectures
 - ChatGPT & Claude
+- [SO - How to change background color of the snackbar?](https://stackoverflow.com/questions/34020891/how-to-change-background-color-of-the-snackbar)
+- [Firebase - Documentation](https://firebase.google.com/docs)
+- [Firebase - Get started testing for Android with Firebase Test Lab](https://firebase.google.com/docs/test-lab/android/get-started)

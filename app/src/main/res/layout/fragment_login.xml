@@ -6,55 +6,64 @@
     android:layout_height="match_parent"
     tools:context=".LoginFragment">
 
-  <EditText
-      android:id="@+id/edit_email"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_margin="@dimen/text_margin"
-      android:autofillHints="@string/email"
-      android:hint="@string/email"
-      android:inputType="textEmailAddress"
-      app:layout_constraintBottom_toTopOf="@+id/edit_password"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="0.5"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_chainStyle="packed" />
+    <EditText
+        android:id="@+id/edit_email"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        android:autofillHints="@string/email"
+        android:hint="@string/email"
+        android:inputType="textEmailAddress"
+        app:layout_constraintBottom_toTopOf="@+id/edit_password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
 
-  <EditText
-      android:id="@+id/edit_password"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_margin="@dimen/text_margin"
-      android:autofillHints="Password"
-      android:ems="10"
-      android:hint="@string/password"
-      android:inputType="textPassword"
-      app:layout_constraintBottom_toTopOf="@+id/btn_log_in"
-      app:layout_constraintEnd_toEndOf="@+id/edit_email"
-      app:layout_constraintHorizontal_bias="0.5"
-      app:layout_constraintStart_toStartOf="@+id/edit_email"
-      app:layout_constraintTop_toBottomOf="@+id/edit_email" />
+    <EditText
+        android:id="@+id/edit_password"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/text_margin"
+        android:autofillHints="Password"
+        android:ems="10"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        app:layout_constraintBottom_toTopOf="@+id/btn_log_in"
+        app:layout_constraintEnd_toEndOf="@+id/edit_email"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="@+id/edit_email"
+        app:layout_constraintTop_toBottomOf="@+id/edit_email" />
 
-  <Button
-      android:id="@+id/btn_log_in"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/login"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="@+id/edit_password"
-      app:layout_constraintHorizontal_bias="0.5"
-      app:layout_constraintStart_toStartOf="@+id/edit_password"
-      app:layout_constraintTop_toBottomOf="@+id/edit_password" />
+    <Button
+        android:id="@+id/btn_log_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="48dp"
+        android:minHeight="48dp"
+        android:text="@string/login"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/edit_password"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
-  <Button
-      android:id="@+id/btn_go_to_register"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/register"
-      app:layout_constraintTop_toBottomOf="@+id/btn_log_in"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      android:layout_marginTop="16dp" />
+    <TextView
+        android:id="@+id/txt_dont_have_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/don_t_have_an_account"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_log_in"
+        android:padding="10dp"
+        android:textAlignment="center"
+        android:textColor="@color/design_default_color_primary"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
