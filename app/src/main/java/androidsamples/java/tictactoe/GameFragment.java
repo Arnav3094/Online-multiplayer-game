@@ -175,6 +175,17 @@ public class GameFragment extends Fragment {
 		if (!isSinglePlayer) {
 			listenToGameUpdates();
 		}
+		else{
+			if(currentTurn.equals("O")){
+				makeComputerMove();
+				Log.d(TAG,"Computer move in view Created");
+				Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
+				Map<String, Object> updates = new HashMap<>();
+				updates.put("currentTurn",currentTurn);
+				updates.put("gameState",gameState);
+				updateGameFields(mGameId, updates);
+			}
+		}
 	}
 
 	private void updateContentDescription(int i){
@@ -221,8 +232,8 @@ public class GameFragment extends Fragment {
 		if ( !(winner.equals("NULL")) || (!gameState.get(index).isEmpty() || (!currentTurn.equals(mySymbol))) ){
 			return;
 		}
-
 		gameState.set(index, currentTurn);
+		Log.d(TAG,"isSinglePlayer: "+isSinglePlayer+" currentTurn "+currentTurn);
 		updateUI();
 		if (checkWin()) {
 			Map<String, Object> updates = new HashMap<>();
@@ -262,17 +273,24 @@ public class GameFragment extends Fragment {
 		} else {
 			switchTurn();
 			//For sleeping
-//			if (isSinglePlayer && currentTurn.equals("O")) {
-//				new Handler().postDelayed(new Runnable() {
-//					@Override
-//					public void run() {
-//
-//						Log.d(TAG,"Computer move");
-//					}
-//				}, 0);
-//			}
+
+			if (isSinglePlayer && currentTurn.equals("O")) {
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						Log.d(TAG,"Computer move");
+						makeComputerMove();
+						Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
+						Map<String, Object> updates = new HashMap<>();
+						updates.put("currentTurn",currentTurn);
+						updates.put("gameState",gameState);
+						updateGameFields(mGameId, updates);
+						return ;
+					}
+				}, 500);
+			}
 //			sleep(1000);
-			makeComputerMove();
+
 			Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
 			Map<String, Object> updates = new HashMap<>();
 			updates.put("currentTurn",currentTurn);
@@ -293,7 +311,7 @@ public class GameFragment extends Fragment {
 				int losses = Objects.requireNonNullElse(snapshot.child("losses").getValue(Integer.class), 0);
 				int draws = Objects.requireNonNullElse(snapshot.child("draws").getValue(Integer.class), 0);
 
-				Log.d(TAG,"wins: "+wins+" losses: "+losses+" result: "+result);
+				Log.d(TAG,"prev wins: "+wins+" prev losses: "+losses+" cur result: "+result);
 				if ("win".equals(result)) {
 					mPlayerStatsRef.child("wins").setValue(wins + 1);
 				} else if ("loss".equals(result)) {
