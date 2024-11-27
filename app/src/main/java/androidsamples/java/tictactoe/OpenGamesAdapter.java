@@ -38,7 +38,8 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
 		String gameId = mGameList.get(position);
 		Log.d(TAG, "onBindViewHolder: Binding game ID " + gameId + " at position " + position);
 		holder.mIdView.setText(gameId);
-		holder.mContentView.setText("Open Game #" + (position + 1));
+		String openGameText = "Open Game #" + (position + 1);
+		holder.mContentView.setText(openGameText);
 
 		holder.mView.setOnClickListener(v -> {
 			Log.d(TAG, "Game clicked: Game ID " + gameId);
