@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.ViewHolder> {
 	private static final String TAG = "OpenGamesAdapter";
@@ -54,7 +55,7 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
 
 	public void updateData(List<String> newGameList) {
 		Log.d(TAG, "updateData: Updating game list with " + newGameList.size() + " games");
-		mGameList = newGameList != null ? newGameList : new ArrayList<>();
+		mGameList = Objects.requireNonNullElse(newGameList, new ArrayList<>());
 		notifyDataSetChanged();
 	}
 
