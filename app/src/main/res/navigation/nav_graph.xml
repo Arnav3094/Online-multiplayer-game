@@ -4,55 +4,55 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/dashboardFragment">
 
-  <fragment
-      android:id="@+id/loginFragment"
-      android:name="androidsamples.java.tictactoe.LoginFragment"
-      android:label="@string/login_fragment_label"
-      tools:layout="@layout/fragment_login">
-    <action
-        android:id="@+id/action_login_to_register"
-        app:destination="@id/registerFragment" />
-    <action
-        android:id="@+id/action_login_successful"
-        app:destination="@id/dashboardFragment" />
-  </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="androidsamples.java.tictactoe.LoginFragment"
+        android:label="@string/login_fragment_label"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_login_to_register"
+            app:destination="@id/registerFragment" />
+        <action
+            android:id="@+id/action_login_successful"
+            app:destination="@id/dashboardFragment" />
+    </fragment>
 
-  <fragment
-      android:id="@+id/registerFragment"
-      android:name="androidsamples.java.tictactoe.RegisterFragment"
-      android:label="@string/register_fragment_label"
-      tools:layout="@layout/fragment_register">
-    <action
-        android:id="@+id/action_register_to_dashboard"
-        app:destination="@id/dashboardFragment" />
-  </fragment>
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="androidsamples.java.tictactoe.RegisterFragment"
+        android:label="@string/register_fragment_label"
+        tools:layout="@layout/fragment_register">
+        <action
+            android:id="@+id/action_register_to_dashboard"
+            app:destination="@id/dashboardFragment" />
+    </fragment>
 
-  <fragment
-      android:id="@+id/dashboardFragment"
-      android:name="androidsamples.java.tictactoe.DashboardFragment"
-      android:label="@string/app_name"
-      tools:layout="@layout/fragment_dashboard">
-     <action
-        android:id="@+id/action_need_auth"
-        app:destination="@id/loginFragment" />
-    <action
-        android:id="@+id/action_game"
-        app:destination="@id/gameFragment" />
-  </fragment>
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="androidsamples.java.tictactoe.DashboardFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_need_auth"
+            app:destination="@id/loginFragment"/>
+        <action
+            android:id="@+id/action_game"
+            app:destination="@id/gameFragment" />
+    </fragment>
 
-  <fragment
-      android:id="@+id/gameFragment"
-      android:name="androidsamples.java.tictactoe.GameFragment"
-      android:label="@string/game_fragment_label"
-      tools:layout="@layout/fragment_game">
-    <argument
-        android:name="gameType"
-        app:argType="string" />
-    <action
-        android:id="@+id/action_need_auth"
-        app:destination="@id/loginFragment" />
-    <argument
-        android:name="GameId"
-        app:argType="string" />
-  </fragment>
+    <fragment
+        android:id="@+id/gameFragment"
+        android:name="androidsamples.java.tictactoe.GameFragment"
+        android:label="@string/game_fragment_label"
+        tools:layout="@layout/fragment_game">
+        <argument
+            android:name="gameType"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_need_auth"
+            app:destination="@id/loginFragment" />
+        <argument
+            android:name="GameId"
+            app:argType="string" />
+    </fragment>
 </navigation>
