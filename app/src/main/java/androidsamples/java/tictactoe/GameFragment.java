@@ -45,6 +45,8 @@ public class GameFragment extends Fragment {
 	private DatabaseReference mPlayerStatsRef;
 	private String userEmail;
 	private String winner ="NULL";
+	private Integer scoreUpdated = 0;
+	private Integer popCnt = 0;
 	private final String[] positions = {
 			"Top-left", "Top-center", "Top-right",
 			"Middle-left", "Center", "Middle-right",
@@ -100,7 +102,9 @@ public class GameFragment extends Fragment {
 									.setPositiveButton(R.string.yes, (d, which) -> {
 										Log.d(TAG, "User confirmed forfeit. Navigating back.");
 										//Loss for the player who forfeited
+										popCnt++;
 										updatePlayerStats("loss");
+										scoreUpdated++;
 										mGameRef.child("winner").setValue((Objects.equals(mySymbol, "X"))?"O":"X");
 										mNavController.popBackStack();
 									})
@@ -216,13 +220,26 @@ public class GameFragment extends Fragment {
 		if (checkWin()) {
 			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,currentTurn));
 			winner = (currentTurn.equals(mySymbol) ? "win" : "loss");
-			updatePlayerStats(currentTurn.equals(mySymbol) ? "win" : "loss");
-			showWinDialog(currentTurn);
+			if(scoreUpdated == 0) {
+				updatePlayerStats(currentTurn.equals(mySymbol) ? "win" : "loss");
+				scoreUpdated++;
+			}
+			if(popCnt == 0) {
+				showWinDialog(currentTurn);
+				popCnt++;
+			}
 		} else if (isDraw()) {
+			popCnt++;
 			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"draw"));
 			winner = "draw";
-			updatePlayerStats("draw");
-			showWinDialog("Draw");
+			if(scoreUpdated == 0) {
+				updatePlayerStats("draw");
+				scoreUpdated++;
+			}
+			if(popCnt == 0) {
+				showWinDialog("Draw");
+				popCnt++;
+			}
 		} else {
 			switchTurn();
 			if (isSinglePlayer && currentTurn.equals("O")) {
@@ -326,16 +343,29 @@ public class GameFragment extends Fragment {
 				if (data != null) {
 //					otherForfeited = !(data.getWinner().equals("NULL"));
 					winner = data.winner;
+
 					if(!(winner.equals("NULL")))
 					{
 						Log.d(TAG,"Winner is decided: "+winner);
 						if(winner.equals("draw")){
-							updatePlayerStats("draw");
-							showWinDialog("Draw");
+							if(scoreUpdated == 0) {
+								updatePlayerStats("draw");
+								scoreUpdated++;
+							}
+							if(popCnt == 0) {
+								showWinDialog("Draw");
+								popCnt++;
+							}
 						}
 						else{
+							if(scoreUpdated == 0) {
 							updatePlayerStats(winner.equals(mySymbol) ? "win" : "loss");
-							showWinDialog(winner);
+								scoreUpdated++;
+							}
+							if(popCnt == 0) {
+								showWinDialog(winner);
+								popCnt++;
+							}
 						}
 					}
 					currentTurn = data.currentTurn;
