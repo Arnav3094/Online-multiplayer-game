@@ -8,9 +8,9 @@
     <!-- Group the views together using a ConstraintLayout chain -->
     <EditText
         android:id="@+id/edit_email"
-        android:minWidth="48dp"
+        android:minWidth="300dp"
         android:minHeight="48dp"
-        android:layout_width="300dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
         android:autofillHints="emailAddress"
@@ -24,9 +24,9 @@
 
     <EditText
         android:id="@+id/edit_password"
-        android:minWidth="48dp"
+        android:minWidth="300dp"
         android:minHeight="48dp"
-        android:layout_width="300dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
         android:autofillHints="password"
@@ -39,9 +39,9 @@
 
     <EditText
         android:id="@+id/edit_confirm_password"
-        android:minWidth="48dp"
+        android:minWidth="300dp"
         android:minHeight="48dp"
-        android:layout_width="300dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/text_margin"
         android:autofillHints="password"
