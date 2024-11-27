@@ -24,7 +24,7 @@ import java.util.Objects;
 public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.ViewHolder> {
 	private static final String TAG = "OpenGamesAdapter";
 	private List<String> mGameList;
-
+	private String player2Email;
 	public OpenGamesAdapter(List<String> gameList) {
 		mGameList = gameList != null ? gameList : new ArrayList<>();
 		Log.d(TAG, "Adapter initialized with " + mGameList.size() + " games.");
@@ -53,6 +53,22 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
 			FirebaseDatabase database = FirebaseDatabase.getInstance();
 			mGameRef = database.getReference("games").child(gameId);
 			FirebaseManager firebaseManager = FirebaseManager.getInstance();
+			String gameType = "two-player";
+//
+			boolean a = false;
+			mGameRef.child("player2").addListenerForSingleValueEvent(new ValueEventListener() {
+				@Override
+				public void onDataChange(@NonNull DataSnapshot snapshot) {
+					player2Email = snapshot.getValue(String.class);
+					if(player2Email.equals("Computer") ){
+						String gameType = "One-Player";
+					}
+				}
+				@Override
+				public void onCancelled(@NonNull DatabaseError error) {
+					Log.e("GameFragment", "Error fetching winner", error.toException());
+				}
+			});
 			mGameRef.child("player1").addListenerForSingleValueEvent(new ValueEventListener() {
 				@Override
 				public void onDataChange(@NonNull DataSnapshot snapshot) {
