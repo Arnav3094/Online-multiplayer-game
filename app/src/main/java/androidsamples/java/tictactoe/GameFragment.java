@@ -40,6 +40,12 @@ public class GameFragment extends Fragment {
 	private String mySymbol = "";
 	private List<String> gameState;
 	private DatabaseReference mGameRef;
+	
+	private final String[] positions = {
+			"Top-left", "Top-center", "Top-right",
+			"Middle-left", "Center", "Middle-right",
+			"Bottom-left", "Bottom-center", "Bottom-right"
+	};
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -101,9 +107,30 @@ public class GameFragment extends Fragment {
 			mButtons[i] = view.findViewById(resId);
 			mButtons[i].setOnClickListener(v -> handleMove(finalI));
 		}
+		
+		updateContentDescription();
 
 		if (!isSinglePlayer) {
 			listenToGameUpdates();
+		}
+	}
+	
+	private void updateContentDescription(int i){
+		if (mButtons[i].getText().equals("")) {
+			mButtons[i].setContentDescription(positions[i] + ", empty");
+		} else if (mButtons[i].getText().equals("X")) {
+			mButtons[i].setContentDescription(positions[i] + ", X");
+		} else if (mButtons[i].getText().equals("O")) {
+			mButtons[i].setContentDescription(positions[i] + ", O");
+		}
+		else{
+			Log.e(TAG, "Something went wrong. mButtons["+i+"].getText() = " + mButtons[i].getText());
+		}
+	}
+	
+	private void updateContentDescription(){
+		for (int i = 0; i < GRID_SIZE; i++) {
+			updateContentDescription(i);
 		}
 	}
 
