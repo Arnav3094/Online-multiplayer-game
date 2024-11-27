@@ -87,17 +87,37 @@ public class GameFragment extends Fragment {
 			@Override
 			public void handleOnBackPressed() {
 				Log.d(TAG, "Back pressed");
-				AlertDialog dialog = new AlertDialog.Builder(requireActivity())
-						.setTitle(R.string.confirm)
-						.setMessage(R.string.forfeit_game_dialog_message)
-						.setPositiveButton(R.string.yes, (d, which) -> {
-							Log.d(TAG, "User confirmed forfeit. Navigating back.");
+				mGameRef.child("winner").addListenerForSingleValueEvent(new ValueEventListener() {
+					@Override
+					public void onDataChange(@NonNull DataSnapshot snapshot) {
+						String winner = snapshot.getValue(String.class);
+						if (Objects.equals(winner, "NULL")) {
+							// No winner set yet
+							Log.d("GameFragment", "Winner is null (no winner yet)");
+							AlertDialog dialog = new AlertDialog.Builder(requireActivity())
+									.setTitle(R.string.confirm)
+									.setMessage(R.string.forfeit_game_dialog_message)
+									.setPositiveButton(R.string.yes, (d, which) -> {
+										Log.d(TAG, "User confirmed forfeit. Navigating back.");
+// FIX: add loss condition here
+										mNavController.popBackStack();
+									})
+									.setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
+									.create();
+							dialog.show();
 
+						} else {
+							// Winner exists
+							Log.d("GameFragment", "Winner is: " + winner);
 							mNavController.popBackStack();
-						})
-						.setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
-						.create();
-				dialog.show();
+						}
+					}
+
+					@Override
+					public void onCancelled(@NonNull DatabaseError error) {
+						Log.e("GameFragment", "Error fetching winner", error.toException());
+					}
+				});
 			}
 		};
 		requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
@@ -125,7 +145,7 @@ public class GameFragment extends Fragment {
 			listenToGameUpdates();
 		}
 	}
-	
+
 	private void updateContentDescription(int i){
 		if (mButtons[i].getText().equals("")) {
 			mButtons[i].setContentDescription(positions[i] + ", empty");
@@ -138,7 +158,7 @@ public class GameFragment extends Fragment {
 			Log.e(TAG, "Something went wrong. mButtons["+i+"].getText() = " + mButtons[i].getText());
 		}
 	}
-	
+
 	private void updateContentDescription(){
 		for (int i = 0; i < GRID_SIZE; i++) {
 			updateContentDescription(i);
@@ -159,7 +179,7 @@ public class GameFragment extends Fragment {
 
 		// Save game data to Firebase
 		mGameRef = FirebaseDatabase.getInstance().getReference("games").child(mGameId);
-		mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState))
+		mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"NULL"))
 				.addOnSuccessListener(aVoid -> Log.d(TAG, "New Game Created with ID: " + mGameId))
 				.addOnFailureListener(e -> Log.e(TAG, "Failed to create new game", e));
 	}
@@ -191,19 +211,22 @@ public class GameFragment extends Fragment {
 		}
 		gameState.set(index, currentTurn);
 		updateUI();
+//		FIX : add when other forfeits you get a win
 		if (checkWin()) {
 			mGameRef.child("winner").setValue(currentTurn);
 			updatePlayerStats(currentTurn.equals(mySymbol) ? "win" : "loss");
 			showWinDialog(currentTurn);
 		} else if (isDraw()) {
 			mGameRef.child("winner").setValue("Draw");
+//		FIX : add draw condition update on db
+			updatePlayerStats("draw");
 			showWinDialog("Draw");
 		} else {
 			switchTurn();
 			if (isSinglePlayer && currentTurn.equals("O")) {
 				makeComputerMove();
 			}
-			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState));
+			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"NULL"));
 		}
 	}
 	private void updatePlayerStats(String result) {
@@ -216,11 +239,15 @@ public class GameFragment extends Fragment {
 						? snapshot.child("wins").getValue(Integer.class) : 0;
 				int losses = snapshot.child("losses").getValue(Integer.class) != null
 						? snapshot.child("losses").getValue(Integer.class) : 0;
-
+				int draws = snapshot.child("draws").getValue(Integer.class) != null
+						? snapshot.child("draws").getValue(Integer.class) : 0;
 				if ("win".equals(result)) {
 					mPlayerStatsRef.child("wins").setValue(wins + 1);
 				} else if ("loss".equals(result)) {
 					mPlayerStatsRef.child("losses").setValue(losses + 1);
+				}
+				else if ("draw".equals(result)) {
+					mPlayerStatsRef.child("draws").setValue(draws + 1);
 				}
 			}
 
@@ -333,13 +360,14 @@ public class GameFragment extends Fragment {
 		public boolean isSinglePlayer;
 		public String currentTurn;
 		public List<String> gameState;
-
+		public String winner;
 		public GameData() {}
 
-		public GameData(boolean isSinglePlayer, String currentTurn, List<String> gameState) {
+		public GameData(boolean isSinglePlayer, String currentTurn, List<String> gameState,String winner) {
 			this.isSinglePlayer = isSinglePlayer;
 			this.currentTurn = currentTurn;
 			this.gameState = gameState;
+			this.winner = winner;
 		}
 	}
 }
