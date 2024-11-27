@@ -2,6 +2,7 @@ package androidsamples.java.tictactoe;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,7 +34,8 @@ import java.util.Random;
 public class GameFragment extends Fragment {
 	private static final String TAG = "GameFragment";
 	private static final int GRID_SIZE = 9;
-
+// TODO: when player 1 leaves, and reopens then he is logged in as player 2
+// TODO: player 2 leaves
 	FirebaseManager firebaseManager;
 	private final Button[] mButtons = new Button[GRID_SIZE];
 	private NavController mNavController;
@@ -61,19 +63,27 @@ public class GameFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate: called");
 		setHasOptionsMenu(true);
+		
+		// get fm
 		firebaseManager = FirebaseManager.getInstance();
+		
+		// get game type
 		GameFragmentArgs args = GameFragmentArgs.fromBundle(getArguments());
 		String gameType = args.getGameType();
+		
 		isSinglePlayer = "One-Player".equals(gameType);
 		Log.d(TAG,"isSinglePlayer: "+isSinglePlayer);
+		
 		mGameId = args.getGameId();
 		FirebaseDatabase database = FirebaseDatabase.getInstance();
+		
 		userEmail = firebaseManager.getCurrentUserEmail();
-		String temuserEmail = userEmail.replace(".", ","); // Firebase key-safe format
-		mPlayerStatsRef = FirebaseDatabase.getInstance().getReference("playerStats").child(temuserEmail);
+		mPlayerStatsRef = FirebaseDatabase.getInstance().getReference("playerStats").child(userEmail.replace(".", ","));// Firebase key-safe format
+		
 		if (Objects.equals(mGameId, "NULL")) {
 			Log.e(TAG, "ERROR game id is NULL");
 		} else {
+			// getting the game data for that ID
 			mGameRef = database.getReference("games").child(mGameId);
 			Log.d(TAG, "Joining existing game with ID: " + mGameId);
 			mGameRef.child("player1").get().addOnSuccessListener(snapshot -> {
@@ -238,10 +248,17 @@ public class GameFragment extends Fragment {
 		} else {
 			switchTurn();
 			if (isSinglePlayer && currentTurn.equals("O")) {
-				makeComputerMove();
+				new Handler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						Log.d(TAG,"Computer move");
+						makeComputerMove();
+					}
+				}, 2000);
 			}
 //			Log.d(TAG,"Before database setting value player1id: ": )
 			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"NULL",player1Email,player2Email));
+			// TODO: remove isSinglePlayer, "NULL", player1Email, player2Email
 		}
 	}
 	private void updatePlayerStats(String result) {
@@ -251,12 +268,9 @@ public class GameFragment extends Fragment {
 		mPlayerStatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot snapshot) {
-				int wins = snapshot.child("wins").getValue(Integer.class) != null
-						? snapshot.child("wins").getValue(Integer.class) : 0;
-				int losses = snapshot.child("losses").getValue(Integer.class) != null
-						? snapshot.child("losses").getValue(Integer.class) : 0;
-				int draws = snapshot.child("draws").getValue(Integer.class) != null
-						? snapshot.child("draws").getValue(Integer.class) : 0;
+				int wins = Objects.requireNonNullElse(snapshot.child("wins").getValue(Integer.class), 0);
+				int losses = Objects.requireNonNullElse(snapshot.child("losses").getValue(Integer.class), 0);
+				int draws = Objects.requireNonNullElse(snapshot.child("draws").getValue(Integer.class), 0);
 
 				Log.d(TAG,"wins: "+wins+" losses: "+losses+" result: "+result);
 				if ("win".equals(result)) {
@@ -343,8 +357,7 @@ public class GameFragment extends Fragment {
 //					otherForfeited = !(data.getWinner().equals("NULL"));
 					winner = data.winner;
 
-					if(!(winner.equals("NULL")))
-					{
+					if(!(winner.equals("NULL"))) { // Game has reached a conclusion
 						Log.d(TAG,"Winner is decided: "+winner);
 						if(winner.equals("draw")){
 							if(scoreUpdated == 0) {
