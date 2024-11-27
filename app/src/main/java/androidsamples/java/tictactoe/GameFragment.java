@@ -92,16 +92,12 @@ public class GameFragment extends Fragment {
 			mGameRef.child("player1").get().addOnSuccessListener(snapshot -> {
 				player1Email = snapshot.getValue(String.class); // Assign the value to player1Email
 				Log.d(TAG, "Player 1 Email: " + player1Email); // Optional log
-			}).addOnFailureListener(e -> {
-				Log.e(TAG, "Failed to fetch Player 1 Email", e);
-			});
+			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch Player 1 Email", e));
 
 			mGameRef.child("isSinglePlayer").get().addOnSuccessListener(snapshot -> {
-				isSinglePlayer = snapshot.getValue(boolean.class); // Assign the value to player1Email
+				isSinglePlayer = Boolean.TRUE.equals(snapshot.getValue(boolean.class)); // Assign the value to player1Email
 				Log.d(TAG, "isSinglePlayer: " + isSinglePlayer); // Optional log
-			}).addOnFailureListener(e -> {
-				Log.e(TAG, "Failed to fetch Player 1 Email", e);
-			});
+			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch Player 1 Email", e));
 			
 			mGameRef.child("player2").get().addOnSuccessListener(snapshot -> {
 				player2Email = snapshot.getValue(String.class); // Assign the value to player1Email
@@ -114,9 +110,7 @@ public class GameFragment extends Fragment {
 				txtYouAre.setText(youAreText);
 				Log.d(TAG, "onCreate: player 2 fetch");
 				joinExistingGame();// Optional log
-			}).addOnFailureListener(e -> {
-				Log.e(TAG, "Failed to fetch Player 2 Email", e);
-			});
+			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch Player 2 Email", e));
 		}
 
 		OnBackPressedCallback callback = new OnBackPressedCallback(true) {
@@ -360,11 +354,6 @@ public class GameFragment extends Fragment {
 
 	private void switchTurn() {
 		currentTurn = currentTurn.equals("X") ? "O" : "X";
-		boolean myTurn = currentTurn.equals(mySymbol);
-		txtTurn.setVisibility(myTurn ? View.VISIBLE : View.INVISIBLE);
-		for(Button button : mButtons){
-			button.setEnabled(myTurn);
-		}
 	}
 
 	private void makeComputerMove() {
@@ -458,6 +447,12 @@ public class GameFragment extends Fragment {
 					currentTurn = data.currentTurn;
 					gameState = data.gameState;
 					updateUI();
+					boolean myTurn = currentTurn.equals(mySymbol);
+					Log.d(TAG,"Current turn: " + currentTurn + " mySymbol: " + mySymbol);
+					txtTurn.setVisibility(myTurn ? View.VISIBLE : View.INVISIBLE);
+					for(Button button : mButtons){
+						button.setEnabled(myTurn);
+					}
 				}
 			}
 
