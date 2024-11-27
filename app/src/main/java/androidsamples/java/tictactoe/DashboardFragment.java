@@ -184,7 +184,7 @@ public class DashboardFragment extends Fragment {
 		// Save game data to Firebase
 		mGameRef = FirebaseDatabase.getInstance().getReference("games").child(mGameId);
 
-		mGameRef.setValue(new GameFragment.GameData(isSinglePlayer, currentTurn, gameState,"NULL"))
+		mGameRef.setValue(new GameFragment.GameData(isSinglePlayer, currentTurn, gameState,"NULL",firebaseManager.getCurrentUserEmail(),"NULL"))
 				.addOnSuccessListener(aVoid -> Log.d(TAG, "New Game Created in Dashboard with ID: " + mGameId))
 				.addOnFailureListener(e -> Log.e(TAG, "Failed to create new game", e));
 		mGameRef.child("player1").setValue(firebaseManager.getCurrentUserEmail());

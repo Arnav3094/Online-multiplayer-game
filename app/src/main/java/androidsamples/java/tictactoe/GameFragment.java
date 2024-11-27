@@ -73,32 +73,20 @@ public class GameFragment extends Fragment {
 			Log.e(TAG, "ERROR game id is NULL");
 		} else {
 			mGameRef = database.getReference("games").child(mGameId);
-//			Log.d(TAG, "Joining existing game with ID: " + mGameId);
-//			mGameRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//				@Override
-//				public void onDataChange(@NonNull DataSnapshot snapshot) {
-//					for (DataSnapshot gameSnapshot : snapshot.getChildren()) {
-//						GameFragment.GameData game = gameSnapshot.getValue(GameFragment.GameData.class);
-//						player1Email = game.getPlayer1();
-//						player2Email = game.getPlayer2();
-//					}
-//				}
-//				@Override
-//				public void onCancelled(@NonNull DatabaseError error) {
-//					Log.e(TAG, "Error in gamefragment id fetch", error.toException());
-//				}
-//			});
-//			mGameRef.child("player2").addListenerForSingleValueEvent(new ValueEventListener() {
-//				@Override
-//				public void onDataChange(@NonNull DataSnapshot snapshot) {
-//
-//				}
-//				@Override
-//				public void onCancelled(@NonNull DatabaseError error) {
-//					Log.e("GameFragment", "Error fetching winner", error.toException());
-//				}
-//			});
-			Log.d(TAG,"player1id: "+player1Email +" player2id: "+player2Email);
+			Log.d(TAG, "Joining existing game with ID: " + mGameId);
+			mGameRef.child("player1").get().addOnSuccessListener(snapshot -> {
+				player1Email = snapshot.getValue(String.class); // Assign the value to player1Email
+				Log.d("DashboardFragment", "Player 1 Email: " + player1Email); // Optional log
+			}).addOnFailureListener(e -> {
+				Log.e("DashboardFragment", "Failed to fetch Player 1 Email", e);
+			});
+			mGameRef.child("player2").get().addOnSuccessListener(snapshot -> {
+				player2Email = snapshot.getValue(String.class); // Assign the value to player1Email
+				Log.d("DashboardFragment", "Player 2 Email: " + player2Email); // Optional log
+			}).addOnFailureListener(e -> {
+				Log.e("DashboardFragment", "Failed to fetch Player 2 Email", e);
+			});
+
 			if(userEmail.equals(player1Email))
 				mySymbol = "X";
 			else
@@ -221,7 +209,7 @@ public class GameFragment extends Fragment {
 		gameState.set(index, currentTurn);
 		updateUI();
 		if (checkWin()) {
-			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,currentTurn));
+			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,currentTurn,player1Email,player2Email));
 			winner = (currentTurn.equals(mySymbol) ? "win" : "loss");
 			if(scoreUpdated == 0) {
 				updatePlayerStats(currentTurn.equals(mySymbol) ? "win" : "loss");
@@ -233,7 +221,7 @@ public class GameFragment extends Fragment {
 			}
 		} else if (isDraw()) {
 			popCnt++;
-			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"draw"));
+			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"draw",player1Email,player2Email));
 			winner = "draw";
 			if(scoreUpdated == 0) {
 				updatePlayerStats("draw");
@@ -248,7 +236,8 @@ public class GameFragment extends Fragment {
 			if (isSinglePlayer && currentTurn.equals("O")) {
 				makeComputerMove();
 			}
-			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"NULL"));
+//			Log.d(TAG,"Before database setting value player1id: ": )
+			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"NULL",player1Email,player2Email));
 		}
 	}
 	private void updatePlayerStats(String result) {
@@ -413,11 +402,13 @@ public class GameFragment extends Fragment {
 		public GameData() {}
 		public String player1 = "NULL";
 		public String player2 = "NULL";
-		public GameData(boolean isSinglePlayer, String currentTurn, List<String> gameState,String winner) {
+		public GameData(boolean isSinglePlayer, String currentTurn, List<String> gameState,String winner,String player1, String player2) {
 			this.isSinglePlayer = isSinglePlayer;
 			this.currentTurn = currentTurn;
 			this.gameState = gameState;
 			this.winner = winner;
+			this.player1 = player1;
+			this.player2 = player2;
 		}
 		public String getWinner() {
 			return winner;
