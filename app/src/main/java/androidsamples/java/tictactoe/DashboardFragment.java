@@ -227,7 +227,7 @@ public class DashboardFragment extends Fragment {
 		}
 
 		if (mPlayerStatsRef != null) {
-			mPlayerStatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+			mPlayerStatsRef.addValueEventListener(new ValueEventListener() {
 				@Override
 				public void onDataChange(@NonNull DataSnapshot ds) {
 					int wins = Objects.requireNonNullElse(ds.child("wins").getValue(Integer.class), 0);
