@@ -145,10 +145,13 @@ public class DashboardFragment extends Fragment {
 				gameType = getString(R.string.one_player);
 			}
 			Log.d(TAG, "New Game selected: " + gameType);
-
-			NavDirections action = DashboardFragmentDirections.actionGame(gameType, "NULL");
+			boolean isSinglePlayer = (gameType.equals(getString(R.string.one_player)));
+			String currentTurn ="X";
+			String mGameId = createNewGame(isSinglePlayer, currentTurn);
+			NavDirections action = DashboardFragmentDirections.actionGame(gameType, mGameId);
 			mNavController.navigate(action);
 		};
+
 
 		AlertDialog dialog = new AlertDialog.Builder(requireActivity())
 				.setTitle(R.string.new_game)
@@ -161,6 +164,49 @@ public class DashboardFragment extends Fragment {
 				})
 				.create();
 		dialog.show();
+	}
+	private String createNewGame(boolean isSinglePlayer, String currentTurn) {
+		String mGameId = FirebaseDatabase.getInstance().getReference("games").push().getKey();
+		List<String> gameState;
+		final int GRID_SIZE = 9;
+		DatabaseReference mGameRef;
+
+		if (mGameId == null) {
+			Log.e(TAG, "Failed to generate unique gameId");
+			return null;
+		}
+
+		gameState = new ArrayList<>();
+		for (int i = 0; i < GRID_SIZE; i++) {
+			gameState.add("");
+		}
+
+		// Save game data to Firebase
+		mGameRef = FirebaseDatabase.getInstance().getReference("games").child(mGameId);
+
+		mGameRef.setValue(new GameFragment.GameData(isSinglePlayer, currentTurn, gameState,"NULL"))
+				.addOnSuccessListener(aVoid -> Log.d(TAG, "New Game Created in Dashboard with ID: " + mGameId))
+				.addOnFailureListener(e -> Log.e(TAG, "Failed to create new game", e));
+		mGameRef.child("player1").setValue(firebaseManager.getCurrentUserEmail());
+		if(isSinglePlayer){
+			mGameRef.child("player2").setValue("Single-Player-Mode");
+		}
+		else{
+			mGameRef.child("player2").setValue("NULL");
+		}
+
+		mGameRef.child("player1").addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot snapshot) {
+				String player1Email = snapshot.getValue(String.class);
+				Log.d(TAG,"In dashboard: "+player1Email);
+			}
+			@Override
+			public void onCancelled(@NonNull DatabaseError error) {
+				Log.e("GameFragment", "Error fetching winner", error.toException());
+			}
+		});
+		return mGameId;
 	}
 
 	private void fetchPlayerStats() {

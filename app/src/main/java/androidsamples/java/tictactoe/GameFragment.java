@@ -34,6 +34,7 @@ public class GameFragment extends Fragment {
 	private static final String TAG = "GameFragment";
 	private static final int GRID_SIZE = 9;
 
+	FirebaseManager firebaseManager;
 	private final Button[] mButtons = new Button[GRID_SIZE];
 	private NavController mNavController;
 	private String mGameId;
@@ -52,36 +53,56 @@ public class GameFragment extends Fragment {
 			"Middle-left", "Center", "Middle-right",
 			"Bottom-left", "Bottom-center", "Bottom-right"
 	};
+	private String player1Email;
+	private String player2Email;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate: called");
 		setHasOptionsMenu(true);
-
+		firebaseManager = FirebaseManager.getInstance();
 		GameFragmentArgs args = GameFragmentArgs.fromBundle(getArguments());
 		String gameType = args.getGameType();
 		isSinglePlayer = "One-Player".equals(gameType);
-
+		Log.d(TAG,"isSinglePlayer: "+isSinglePlayer);
 		mGameId = args.getGameId();
 		FirebaseDatabase database = FirebaseDatabase.getInstance();
-		mGameRef = database.getReference("games").child(mGameId);
-		FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-		if (user != null) {
-			userEmail = user.getEmail();
-			if (userEmail != null) {
-				userEmail = userEmail.replace(".", ","); // Firebase key-safe format
-				mPlayerStatsRef = FirebaseDatabase.getInstance().getReference("playerStats").child(userEmail);
-			}
-		}
-
+		userEmail = firebaseManager.getCurrentUserEmail();
 		if (Objects.equals(mGameId, "NULL")) {
-			Log.d(TAG, "Creating a new game.");
-			mySymbol = "X";
-			createNewGame();
+			Log.e(TAG, "ERROR game id is NULL");
 		} else {
-			Log.d(TAG, "Joining existing game with ID: " + mGameId);
-			mySymbol = "O";
+			mGameRef = database.getReference("games").child(mGameId);
+//			Log.d(TAG, "Joining existing game with ID: " + mGameId);
+//			mGameRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//				@Override
+//				public void onDataChange(@NonNull DataSnapshot snapshot) {
+//					for (DataSnapshot gameSnapshot : snapshot.getChildren()) {
+//						GameFragment.GameData game = gameSnapshot.getValue(GameFragment.GameData.class);
+//						player1Email = game.getPlayer1();
+//						player2Email = game.getPlayer2();
+//					}
+//				}
+//				@Override
+//				public void onCancelled(@NonNull DatabaseError error) {
+//					Log.e(TAG, "Error in gamefragment id fetch", error.toException());
+//				}
+//			});
+//			mGameRef.child("player2").addListenerForSingleValueEvent(new ValueEventListener() {
+//				@Override
+//				public void onDataChange(@NonNull DataSnapshot snapshot) {
+//
+//				}
+//				@Override
+//				public void onCancelled(@NonNull DatabaseError error) {
+//					Log.e("GameFragment", "Error fetching winner", error.toException());
+//				}
+//			});
+			Log.d(TAG,"player1id: "+player1Email +" player2id: "+player2Email);
+			if(userEmail.equals(player1Email))
+				mySymbol = "X";
+			else
+				mySymbol ="O";
 			joinExistingGame();
 		}
 
@@ -106,6 +127,7 @@ public class GameFragment extends Fragment {
 										updatePlayerStats("loss");
 										scoreUpdated++;
 										mGameRef.child("winner").setValue((Objects.equals(mySymbol, "X"))?"O":"X");
+										Log.d(TAG,"Number of popups: "+popCnt+" player score changed: "+scoreUpdated);
 										mNavController.popBackStack();
 									})
 									.setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
@@ -168,25 +190,6 @@ public class GameFragment extends Fragment {
 		for (int i = 0; i < GRID_SIZE; i++) {
 			updateContentDescription(i);
 		}
-	}
-
-	private void createNewGame() {
-		mGameId = FirebaseDatabase.getInstance().getReference("games").push().getKey();
-		if (mGameId == null) {
-			Log.e(TAG, "Failed to generate unique gameId");
-			return;
-		}
-
-		gameState = new ArrayList<>();
-		for (int i = 0; i < GRID_SIZE; i++) {
-			gameState.add("");
-		}
-
-		// Save game data to Firebase
-		mGameRef = FirebaseDatabase.getInstance().getReference("games").child(mGameId);
-		mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"NULL"))
-				.addOnSuccessListener(aVoid -> Log.d(TAG, "New Game Created with ID: " + mGameId))
-				.addOnFailureListener(e -> Log.e(TAG, "Failed to create new game", e));
 	}
 
 	private void joinExistingGame() {
@@ -408,7 +411,8 @@ public class GameFragment extends Fragment {
 		public List<String> gameState;
 		public String winner;
 		public GameData() {}
-
+		public String player1 = "NULL";
+		public String player2 = "NULL";
 		public GameData(boolean isSinglePlayer, String currentTurn, List<String> gameState,String winner) {
 			this.isSinglePlayer = isSinglePlayer;
 			this.currentTurn = currentTurn;
@@ -418,6 +422,8 @@ public class GameFragment extends Fragment {
 		public String getWinner() {
 			return winner;
 		}
+		public String getPlayer1() {return player1;}
+		public String getPlayer2() {return player2;}
 
 	}
 }
