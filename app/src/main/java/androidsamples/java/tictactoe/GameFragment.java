@@ -99,7 +99,8 @@ public class GameFragment extends Fragment {
 									.setMessage(R.string.forfeit_game_dialog_message)
 									.setPositiveButton(R.string.yes, (d, which) -> {
 										Log.d(TAG, "User confirmed forfeit. Navigating back.");
-// FIX: add loss condition here
+										updatePlayerStats("loss");
+										mGameRef.child("winner").setValue((Objects.equals(mySymbol, "X"))?"O":"X");
 										mNavController.popBackStack();
 									})
 									.setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
