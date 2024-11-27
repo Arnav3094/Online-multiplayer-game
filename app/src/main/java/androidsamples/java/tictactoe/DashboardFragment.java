@@ -108,7 +108,6 @@ public class DashboardFragment extends Fragment {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot snapshot) {
 				List<String> openGameIds = new ArrayList<>();
-
 				for (DataSnapshot gameSnapshot : snapshot.getChildren()) {
 					GameFragment.GameData game = gameSnapshot.getValue(GameFragment.GameData.class);
 					if (game != null && "NULL".equals(game.getWinner()) && !game.isSinglePlayer) {

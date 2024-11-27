@@ -44,7 +44,7 @@ public class GameFragment extends Fragment {
 	private DatabaseReference mGameRef;
 	private DatabaseReference mPlayerStatsRef;
 	private String userEmail;
-
+	private String winner ="NULL";
 	private final String[] positions = {
 			"Top-left", "Top-center", "Top-right",
 			"Middle-left", "Center", "Middle-right",
@@ -207,19 +207,20 @@ public class GameFragment extends Fragment {
 	}
 
 	private void handleMove(int index) {
-//		if()
-		if (!gameState.get(index).isEmpty() || (!isSinglePlayer && !currentTurn.equals(mySymbol))) {
+		if ( !(winner.equals("NULL")) || (!gameState.get(index).isEmpty() || (!isSinglePlayer && !currentTurn.equals(mySymbol))) ){
 			return;
 		}
+		Log.d(TAG,"Winner is: "+winner+"  ");
 		gameState.set(index, currentTurn);
 		updateUI();
-//		FIX : add when other forfeits you get a win
 		if (checkWin()) {
-			mGameRef.child("winner").setValue(currentTurn);
+			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,currentTurn));
+			winner = (currentTurn.equals(mySymbol) ? "win" : "loss");
 			updatePlayerStats(currentTurn.equals(mySymbol) ? "win" : "loss");
 			showWinDialog(currentTurn);
 		} else if (isDraw()) {
-			mGameRef.child("winner").setValue("Draw");
+			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"draw"));
+			winner = "draw";
 			updatePlayerStats("draw");
 			showWinDialog("Draw");
 		} else {
@@ -324,6 +325,19 @@ public class GameFragment extends Fragment {
 				GameData data = snapshot.getValue(GameData.class);
 				if (data != null) {
 //					otherForfeited = !(data.getWinner().equals("NULL"));
+					winner = data.winner;
+					if(!(winner.equals("NULL")))
+					{
+						Log.d(TAG,"Winner is decided: "+winner);
+						if(winner.equals("draw")){
+							updatePlayerStats("draw");
+							showWinDialog("Draw");
+						}
+						else{
+							updatePlayerStats(winner.equals(mySymbol) ? "win" : "loss");
+							showWinDialog(winner);
+						}
+					}
 					currentTurn = data.currentTurn;
 					gameState = data.gameState;
 					updateUI();
