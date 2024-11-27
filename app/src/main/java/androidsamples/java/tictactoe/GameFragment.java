@@ -1,5 +1,7 @@
 package androidsamples.java.tictactoe;
 
+import static java.lang.Thread.sleep;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,7 +27,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 
@@ -175,6 +181,17 @@ public class GameFragment extends Fragment {
 		if (!isSinglePlayer) {
 			listenToGameUpdates();
 		}
+    else{
+			if(currentTurn.equals("O")){
+				makeComputerMove();
+				Log.d(TAG,"Computer move in view Created");
+				Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
+				Map<String, Object> updates = new HashMap<>();
+				updates.put("currentTurn",currentTurn);
+				updates.put("gameState",gameState);
+				updateGameFields(mGameId, updates);
+			}
+		}
 		
 		txtTurn = view.findViewById(R.id.txt_turn);
 		txtYouAre = view.findViewById(R.id.txt_you_are);
@@ -185,19 +202,6 @@ public class GameFragment extends Fragment {
 		if(player2Email.equals("NULL")) playingAgainstText = "Waiting for player to join...";
 		else playingAgainstText = "Playing against: " + ( userEmail.equals(player1Email) ? player2Email :  player1Email);
 		txtPlayingAgainst.setText(playingAgainstText);
-		
-		mGameRef.child("player2").addListenerForSingleValueEvent(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull DataSnapshot snapshot) {
-				player2Email = snapshot.getValue(String.class);
-				Log.d(TAG, "Player 2 Email: " + player2Email);
-				
-			}
-			@Override
-			public void onCancelled(@NonNull DatabaseError error) {
-				Log.e(TAG, "Failed to fetch game data", error.toException());
-			}
-		});
 	}
 
 	private void updateContentDescription(int i){
@@ -241,14 +245,19 @@ public class GameFragment extends Fragment {
 	}
 
 	private void handleMove(int index) {
-		if ( !(winner.equals("NULL")) || (!gameState.get(index).isEmpty() || (!isSinglePlayer && !currentTurn.equals(mySymbol))) ){
+		if ( !(winner.equals("NULL")) || (!gameState.get(index).isEmpty() || (!currentTurn.equals(mySymbol))) ){
 			return;
 		}
-
 		gameState.set(index, currentTurn);
+		Log.d(TAG,"isSinglePlayer: "+isSinglePlayer+" currentTurn "+currentTurn);
 		updateUI();
 		if (checkWin()) {
-			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,currentTurn,player1Email,player2Email));
+			Map<String, Object> updates = new HashMap<>();
+			updates.put("currenTurn",currentTurn);
+			updates.put("gameState",gameState);
+			updates.put("winner",currentTurn);
+			updateGameFields(mGameId, updates);
+//			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,currentTurn,player1Email,player2Email));
 			winner = (currentTurn.equals(mySymbol) ? "win" : "loss");
 			Log.d(TAG,"Winner is: "+winner+" inside checkwin ");
 			Log.d(TAG," scoreupdate: "+scoreUpdated);
@@ -261,9 +270,14 @@ public class GameFragment extends Fragment {
 				popCnt++;
 			}
 		} else if (isDraw()) {
-			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"draw",player1Email,player2Email));
+			Map<String, Object> updates = new HashMap<>();
+			updates.put("currenTurn",currentTurn);
+			updates.put("gameState",gameState);
+			updates.put("winner","draw");
+			updateGameFields(mGameId, updates);
+//			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"draw",player1Email,player2Email));
 			winner = "draw";
-			Log.d(TAG,"DRawn popcnt "+popCnt);
+			Log.d(TAG,"Drawn popcnt "+popCnt);
 			if(scoreUpdated == 0) {
 				updatePlayerStats("draw");
 				scoreUpdated++;
@@ -274,17 +288,31 @@ public class GameFragment extends Fragment {
 			}
 		} else {
 			switchTurn();
+			//For sleeping
+
 			if (isSinglePlayer && currentTurn.equals("O")) {
 				new Handler().postDelayed(new Runnable() {
 					@Override
 					public void run() {
 						Log.d(TAG,"Computer move");
 						makeComputerMove();
+						Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
+						Map<String, Object> updates = new HashMap<>();
+						updates.put("currentTurn",currentTurn);
+						updates.put("gameState",gameState);
+						updateGameFields(mGameId, updates);
+						return ;
 					}
-				}, 2000);
+				}, 500);
 			}
-//			Log.d(TAG,"Before database setting value player1id: ": )
-			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"NULL",player1Email,player2Email));
+//			sleep(1000);
+
+			Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
+			Map<String, Object> updates = new HashMap<>();
+			updates.put("currentTurn",currentTurn);
+			updates.put("gameState",gameState);
+			updateGameFields(mGameId, updates);
+//			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"NULL",player1Email,player2Email));
 			// TODO: remove isSinglePlayer, "NULL", player1Email, player2Email
 		}
 	}
@@ -299,7 +327,7 @@ public class GameFragment extends Fragment {
 				int losses = Objects.requireNonNullElse(snapshot.child("losses").getValue(Integer.class), 0);
 				int draws = Objects.requireNonNullElse(snapshot.child("draws").getValue(Integer.class), 0);
 
-				Log.d(TAG,"wins: "+wins+" losses: "+losses+" result: "+result);
+				Log.d(TAG,"prev wins: "+wins+" prev losses: "+losses+" cur result: "+result);
 				if ("win".equals(result)) {
 					mPlayerStatsRef.child("wins").setValue(wins + 1);
 				} else if ("loss".equals(result)) {
@@ -330,6 +358,7 @@ public class GameFragment extends Fragment {
 		} while (!gameState.get(move).isEmpty());
 
 		gameState.set(move, currentTurn);
+		Log.d(TAG,"In Computer: Before database setting value gamestate array "+gameState.toString() );
 		updateUI();
 
 		if (checkWin()) {
@@ -464,6 +493,14 @@ public class GameFragment extends Fragment {
 		}
 		public String getPlayer1() {return player1;}
 		public String getPlayer2() {return player2;}
-
 	}
+
+	private void updateGameFields(String gameId, Map<String, Object> updates) {
+		DatabaseReference gameRef = FirebaseDatabase.getInstance().getReference("games").child(gameId);
+
+		gameRef.updateChildren(updates)
+				.addOnSuccessListener(aVoid -> Log.d("DashboardFragment", "Game fields updated successfully"))
+				.addOnFailureListener(e -> Log.e("DashboardFragment", "Failed to update game fields", e));
+	}
+
 }

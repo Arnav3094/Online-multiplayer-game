@@ -11,8 +11,11 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,11 +53,23 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
 			FirebaseDatabase database = FirebaseDatabase.getInstance();
 			mGameRef = database.getReference("games").child(gameId);
 			FirebaseManager firebaseManager = FirebaseManager.getInstance();
-			if(!(firebaseManager.getCurrentUserEmail().equals("player1"))) {
-				mGameRef.child("player2").setValue(firebaseManager.getCurrentUserEmail());
-			}
-			NavDirections action = DashboardFragmentDirections.actionGame("two_player", gameId);
-			Navigation.findNavController(v).navigate(action);
+			mGameRef.child("player1").addListenerForSingleValueEvent(new ValueEventListener() {
+				@Override
+				public void onDataChange(@NonNull DataSnapshot snapshot) {
+					String player1Email = snapshot.getValue(String.class);
+					Log.d(TAG,"In opengamesadapter: "+player1Email);
+					if(!(firebaseManager.getCurrentUserEmail().equals(player1Email))) {
+						mGameRef.child("player2").setValue(firebaseManager.getCurrentUserEmail());
+					}
+					NavDirections action = DashboardFragmentDirections.actionGame("two_player", gameId);
+					Navigation.findNavController(v).navigate(action);
+				}
+				@Override
+				public void onCancelled(@NonNull DatabaseError error) {
+					Log.e("GameFragment", "Error fetching winner", error.toException());
+				}
+			});
+
 		});
 	}
 
