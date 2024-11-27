@@ -115,7 +115,8 @@ public class DashboardFragment extends Fragment {
 				List<String> openGameIds = new ArrayList<>();
 				for (DataSnapshot gameSnapshot : snapshot.getChildren()) {
 					GameFragment.GameData game = gameSnapshot.getValue(GameFragment.GameData.class);
-					if (game != null && "NULL".equals(game.getWinner()) && !game.isSinglePlayer) {
+					boolean samePlayerGame = ( "NULL".equals(game.getWinner()) && (firebaseManager.getCurrentUserEmail().equals(game.player1) || firebaseManager.getCurrentUserEmail().equals(game.player2)));
+					if ( (game != null && "NULL".equals(game.getWinner()) && !game.isSinglePlayer && "NULL".equals(game.player2) ) || samePlayerGame  ) {
 						String gameId = gameSnapshot.getKey();  // Extract game ID (key)
 						if (gameId != null) {
 							openGameIds.add(gameId);
@@ -180,20 +181,22 @@ public class DashboardFragment extends Fragment {
 		for (int i = 0; i < GRID_SIZE; i++) {
 			gameState.add("");
 		}
+		String secondPlayer = "";
+		if(isSinglePlayer){
+			secondPlayer = "Single-Player-Mode";
+		}
+		else{
+			secondPlayer = "NULL";
+		}
 
 		// Save game data to Firebase
 		mGameRef = FirebaseDatabase.getInstance().getReference("games").child(mGameId);
 
-		mGameRef.setValue(new GameFragment.GameData(isSinglePlayer, currentTurn, gameState,"NULL",firebaseManager.getCurrentUserEmail(),"NULL"))
+		mGameRef.setValue(new GameFragment.GameData(isSinglePlayer, currentTurn, gameState,"NULL",firebaseManager.getCurrentUserEmail(),secondPlayer))
 				.addOnSuccessListener(aVoid -> Log.d(TAG, "New Game Created in Dashboard with ID: " + mGameId))
 				.addOnFailureListener(e -> Log.e(TAG, "Failed to create new game", e));
-		mGameRef.child("player1").setValue(firebaseManager.getCurrentUserEmail());
-		if(isSinglePlayer){
-			mGameRef.child("player2").setValue("Single-Player-Mode");
-		}
-		else{
-			mGameRef.child("player2").setValue("NULL");
-		}
+//		mGameRef.child("player1").setValue(firebaseManager.getCurrentUserEmail());
+
 
 		mGameRef.child("player1").addListenerForSingleValueEvent(new ValueEventListener() {
 			@Override

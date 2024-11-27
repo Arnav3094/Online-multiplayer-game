@@ -69,6 +69,8 @@ public class GameFragment extends Fragment {
 		mGameId = args.getGameId();
 		FirebaseDatabase database = FirebaseDatabase.getInstance();
 		userEmail = firebaseManager.getCurrentUserEmail();
+		String temuserEmail = userEmail.replace(".", ","); // Firebase key-safe format
+		mPlayerStatsRef = FirebaseDatabase.getInstance().getReference("playerStats").child(temuserEmail);
 		if (Objects.equals(mGameId, "NULL")) {
 			Log.e(TAG, "ERROR game id is NULL");
 		} else {
@@ -76,22 +78,22 @@ public class GameFragment extends Fragment {
 			Log.d(TAG, "Joining existing game with ID: " + mGameId);
 			mGameRef.child("player1").get().addOnSuccessListener(snapshot -> {
 				player1Email = snapshot.getValue(String.class); // Assign the value to player1Email
-				Log.d("DashboardFragment", "Player 1 Email: " + player1Email); // Optional log
+				Log.d(TAG, "Player 1 Email: " + player1Email); // Optional log
 			}).addOnFailureListener(e -> {
-				Log.e("DashboardFragment", "Failed to fetch Player 1 Email", e);
+				Log.e(TAG, "Failed to fetch Player 1 Email", e);
 			});
 			mGameRef.child("player2").get().addOnSuccessListener(snapshot -> {
 				player2Email = snapshot.getValue(String.class); // Assign the value to player1Email
-				Log.d("DashboardFragment", "Player 2 Email: " + player2Email); // Optional log
+				Log.d(TAG, "Player 2 Email: " + player2Email);
+				if(userEmail.equals(player1Email))
+					mySymbol = "X";
+				else
+					mySymbol ="O";
+				Log.d(TAG, userEmail+" player1 "+player1Email+" mysymbol "+mySymbol);
+				joinExistingGame();// Optional log
 			}).addOnFailureListener(e -> {
-				Log.e("DashboardFragment", "Failed to fetch Player 2 Email", e);
+				Log.e(TAG, "Failed to fetch Player 2 Email", e);
 			});
-
-			if(userEmail.equals(player1Email))
-				mySymbol = "X";
-			else
-				mySymbol ="O";
-			joinExistingGame();
 		}
 
 		OnBackPressedCallback callback = new OnBackPressedCallback(true) {
@@ -205,12 +207,14 @@ public class GameFragment extends Fragment {
 		if ( !(winner.equals("NULL")) || (!gameState.get(index).isEmpty() || (!isSinglePlayer && !currentTurn.equals(mySymbol))) ){
 			return;
 		}
-		Log.d(TAG,"Winner is: "+winner+"  ");
+
 		gameState.set(index, currentTurn);
 		updateUI();
 		if (checkWin()) {
 			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,currentTurn,player1Email,player2Email));
 			winner = (currentTurn.equals(mySymbol) ? "win" : "loss");
+			Log.d(TAG,"Winner is: "+winner+" inside checkwin ");
+			Log.d(TAG," scoreupdate: "+scoreUpdated);
 			if(scoreUpdated == 0) {
 				updatePlayerStats(currentTurn.equals(mySymbol) ? "win" : "loss");
 				scoreUpdated++;
@@ -220,9 +224,9 @@ public class GameFragment extends Fragment {
 				popCnt++;
 			}
 		} else if (isDraw()) {
-			popCnt++;
 			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"draw",player1Email,player2Email));
 			winner = "draw";
+			Log.d(TAG,"DRawn popcnt "+popCnt);
 			if(scoreUpdated == 0) {
 				updatePlayerStats("draw");
 				scoreUpdated++;
@@ -241,6 +245,7 @@ public class GameFragment extends Fragment {
 		}
 	}
 	private void updatePlayerStats(String result) {
+//		Log.d(TAG,"HI");
 		if (mPlayerStatsRef == null) return;
 
 		mPlayerStatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -252,6 +257,8 @@ public class GameFragment extends Fragment {
 						? snapshot.child("losses").getValue(Integer.class) : 0;
 				int draws = snapshot.child("draws").getValue(Integer.class) != null
 						? snapshot.child("draws").getValue(Integer.class) : 0;
+
+				Log.d(TAG,"wins: "+wins+" losses: "+losses+" result: "+result);
 				if ("win".equals(result)) {
 					mPlayerStatsRef.child("wins").setValue(wins + 1);
 				} else if ("loss".equals(result)) {
@@ -345,6 +352,7 @@ public class GameFragment extends Fragment {
 								scoreUpdated++;
 							}
 							if(popCnt == 0) {
+								Log.d(TAG,"Draw in onDatachange");
 								showWinDialog("Draw");
 								popCnt++;
 							}

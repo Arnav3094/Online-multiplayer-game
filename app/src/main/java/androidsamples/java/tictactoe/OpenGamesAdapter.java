@@ -11,6 +11,9 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +46,11 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
 
 		holder.mView.setOnClickListener(v -> {
 			Log.d(TAG, "Game clicked: Game ID " + gameId);
+			DatabaseReference mGameRef;
+			FirebaseDatabase database = FirebaseDatabase.getInstance();
+			mGameRef = database.getReference("games").child(gameId);
+			FirebaseManager firebaseManager = FirebaseManager.getInstance();
+			mGameRef.child("player2").setValue(firebaseManager.getCurrentUserEmail());
 			NavDirections action = DashboardFragmentDirections.actionGame("two_player", gameId);
 			Navigation.findNavController(v).navigate(action);
 		});
