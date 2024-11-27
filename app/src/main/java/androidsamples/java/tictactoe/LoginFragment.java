@@ -7,7 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -26,6 +28,11 @@ public class LoginFragment extends Fragment {
 	private final static String TAG = "LoginFragment";
 	private LoginViewModel viewModel;
 	private FirebaseManager firebaseManager;
+	
+	EditText etEmail;
+	EditText etPassword;
+	Button btnLogin;
+	TextView txtDontHaveAccount;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,8 +61,10 @@ public class LoginFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-		EditText etEmail = view.findViewById(R.id.edit_email);
-		EditText etPassword = view.findViewById(R.id.edit_password);
+		etEmail = view.findViewById(R.id.edit_email);
+		etPassword = view.findViewById(R.id.edit_password);
+		btnLogin = view.findViewById(R.id.btn_log_in);
+		txtDontHaveAccount = view.findViewById(R.id.txt_dont_have_account);
 
 		etEmail.setText(viewModel.getEmail());
 		etPassword.setText(viewModel.getPassword());
@@ -86,48 +95,69 @@ public class LoginFragment extends Fragment {
 			}
 		});
 		
-		view.findViewById(R.id.txt_dont_have_account).setOnClickListener(v -> {
-			NavDirections action = LoginFragmentDirections.actionLoginToRegister();
-			Navigation.findNavController(v).navigate(action);
-		});
+		txtDontHaveAccount.setOnClickListener(v -> navigateToRegister());
 
-		view.findViewById(R.id.btn_log_in)
-				.setOnClickListener(v -> {
-					String email = etEmail.getText().toString().trim();
-					String password = etPassword.getText().toString().trim();
-
-					if (email.isEmpty()) {
-						SnackbarHelper.showSnackbar(requireView(), "Please enter email");
-						return;
-					}else{
-						if (password.isEmpty()) {
-							SnackbarHelper.showSnackbar(requireView(), "Please enter password");
-							return;
-						}
-					}
-					firebaseManager.signIn(email, password, new FirebaseManager.OnAuthCompleteListener() {
-						@Override
-						public void onSuccess() {
-							Log.d(TAG, "signIn:onSuccess: log in successful");
-							SnackbarHelper.showSnackbar(requireView(), "Logged in");
-							viewModel.clear();
-							NavDirections action = LoginFragmentDirections.actionLoginSuccessful();
-							Navigation.findNavController(v).navigate(action);
-						}
-
-						@Override
-						public void onError(Exception e) {
-							if(e instanceof FirebaseAuthInvalidCredentialsException || (e instanceof FirebaseException && Objects.requireNonNull(e.getMessage()).contains("INVALID_LOGIN_CREDENTIALS"))){
-								Log.w(TAG, "signIn:onError: invalidCredential - " + e.getMessage());
-								SnackbarHelper.showSnackbar(requireView(), "Invalid email or password", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
-							}else{
-								Log.e(TAG, "signIn:onError: ", e);
-								SnackbarHelper.showSnackbar(requireView(), "Sign In failed", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
-							}
-						}
-					});
-				});
+		btnLogin.setOnClickListener(v -> loginButtonAction());
+		
 		return view;
+	}
+	
+	private void navigateToRegister(){
+		viewModel.clear();
+		NavDirections action = LoginFragmentDirections.actionLoginToRegister();
+		Navigation.findNavController(requireView()).navigate(action);
+	}
+	
+	private void navigateToDashboard(){
+		viewModel.clear();
+		NavDirections action = LoginFragmentDirections.actionLoginSuccessful();
+		Navigation.findNavController(requireView()).navigate(action);
+	}
+	
+	private void loginButtonAction(){
+		String email = etEmail.getText().toString().trim();
+		String password = etPassword.getText().toString().trim();
+		
+		
+		if (email.isEmpty()) {
+			SnackbarHelper.showSnackbar(requireView(), "Please enter email");
+			return;
+		}else{
+			if (password.isEmpty()) {
+				SnackbarHelper.showSnackbar(requireView(), "Please enter password");
+				return;
+			}
+		}
+		
+		// Disable the click listener to prevent multiple clicks
+		Log.d(TAG, "loginButtonAction: disabling button click listener and textview click listener");
+		btnLogin.setOnClickListener(null);
+		txtDontHaveAccount.setOnClickListener(null);
+		
+		firebaseManager.signIn(email, password, new FirebaseManager.OnAuthCompleteListener() {
+			@Override
+			public void onSuccess() {
+				Log.d(TAG, "signIn:onSuccess: log in successful");
+				SnackbarHelper.showSnackbar(requireView(), "Logged in");
+				navigateToDashboard();
+			}
+			
+			@Override
+			public void onError(Exception e) {
+				if(e instanceof FirebaseAuthInvalidCredentialsException || (e instanceof FirebaseException && Objects.requireNonNull(e.getMessage()).contains("INVALID_LOGIN_CREDENTIALS"))){
+					Log.w(TAG, "signIn:onError: invalidCredential - " + e.getMessage());
+					SnackbarHelper.showSnackbar(requireView(), "Invalid email or password", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
+				}else{
+					Log.e(TAG, "signIn:onError: ", e);
+					SnackbarHelper.showSnackbar(requireView(), "Sign In failed", Snackbar.LENGTH_SHORT, R.color.design_default_color_error);
+				}
+				
+				// Re-enable the click listener
+				Log.d(TAG, "signIn:onError: re-enabling button click listener and textview click listener");
+				btnLogin.setOnClickListener(v -> loginButtonAction());
+				txtDontHaveAccount.setOnClickListener(v -> navigateToRegister());
+			}
+		});
 	}
 
 	// No options menu in login fragment.
