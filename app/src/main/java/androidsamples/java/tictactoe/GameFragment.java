@@ -17,6 +17,8 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,7 +42,9 @@ public class GameFragment extends Fragment {
 	private String mySymbol = "";
 	private List<String> gameState;
 	private DatabaseReference mGameRef;
-	
+	private DatabaseReference mPlayerStatsRef;
+	private String userEmail;
+
 	private final String[] positions = {
 			"Top-left", "Top-center", "Top-right",
 			"Middle-left", "Center", "Middle-right",
@@ -60,6 +64,14 @@ public class GameFragment extends Fragment {
 		mGameId = args.getGameId();
 		FirebaseDatabase database = FirebaseDatabase.getInstance();
 		mGameRef = database.getReference("games").child(mGameId);
+		FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+		if (user != null) {
+			userEmail = user.getEmail();
+			if (userEmail != null) {
+				userEmail = userEmail.replace(".", ","); // Firebase key-safe format
+				mPlayerStatsRef = FirebaseDatabase.getInstance().getReference("playerStats").child(userEmail);
+			}
+		}
 
 		if (Objects.equals(mGameId, "NULL")) {
 			Log.d(TAG, "Creating a new game.");
@@ -80,6 +92,7 @@ public class GameFragment extends Fragment {
 						.setMessage(R.string.forfeit_game_dialog_message)
 						.setPositiveButton(R.string.yes, (d, which) -> {
 							Log.d(TAG, "User confirmed forfeit. Navigating back.");
+
 							mNavController.popBackStack();
 						})
 						.setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
@@ -107,9 +120,7 @@ public class GameFragment extends Fragment {
 			mButtons[i] = view.findViewById(resId);
 			mButtons[i].setOnClickListener(v -> handleMove(finalI));
 		}
-		
 		updateContentDescription();
-
 		if (!isSinglePlayer) {
 			listenToGameUpdates();
 		}
@@ -167,7 +178,6 @@ public class GameFragment extends Fragment {
 					Log.e(TAG, "Game not found in database with ID: " + mGameId);
 				}
 			}
-
 			@Override
 			public void onCancelled(@NonNull DatabaseError error) {
 				Log.e(TAG, "Failed to fetch game data", error.toException());
@@ -179,12 +189,11 @@ public class GameFragment extends Fragment {
 		if (!gameState.get(index).isEmpty() || (!isSinglePlayer && !currentTurn.equals(mySymbol))) {
 			return;
 		}
-
 		gameState.set(index, currentTurn);
 		updateUI();
-
 		if (checkWin()) {
 			mGameRef.child("winner").setValue(currentTurn);
+			updatePlayerStats(currentTurn.equals(mySymbol) ? "win" : "loss");
 			showWinDialog(currentTurn);
 		} else if (isDraw()) {
 			mGameRef.child("winner").setValue("Draw");
@@ -196,6 +205,30 @@ public class GameFragment extends Fragment {
 			}
 			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState));
 		}
+	}
+	private void updatePlayerStats(String result) {
+		if (mPlayerStatsRef == null) return;
+
+		mPlayerStatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot snapshot) {
+				int wins = snapshot.child("wins").getValue(Integer.class) != null
+						? snapshot.child("wins").getValue(Integer.class) : 0;
+				int losses = snapshot.child("losses").getValue(Integer.class) != null
+						? snapshot.child("losses").getValue(Integer.class) : 0;
+
+				if ("win".equals(result)) {
+					mPlayerStatsRef.child("wins").setValue(wins + 1);
+				} else if ("loss".equals(result)) {
+					mPlayerStatsRef.child("losses").setValue(losses + 1);
+				}
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError error) {
+				Log.e(TAG, "Failed to update player stats", error.toException());
+			}
+		});
 	}
 
 	private void switchTurn() {
@@ -277,6 +310,11 @@ public class GameFragment extends Fragment {
 
 	private void showWinDialog(String winner) {
 		String message = "Draw".equals(winner) ? "It's a draw!" : winner + " wins!";
+		if (!"Draw".equals(winner) && winner.equals(mySymbol)) {
+			updatePlayerStats("win");
+		} else if (!"Draw".equals(winner)) {
+			updatePlayerStats("loss");
+		}
 		new AlertDialog.Builder(requireActivity())
 				.setTitle("Game Over")
 				.setMessage(message)
