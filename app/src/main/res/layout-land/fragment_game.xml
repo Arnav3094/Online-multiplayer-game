@@ -8,6 +8,17 @@
     tools:context=".GameFragment">
 
     <TextView
+        android:id="@+id/txt_playing_against"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/guideline_50"
+        app:layout_constraintBottom_toTopOf="@id/txt_turn"
+        android:text="@string/playing_against"
+        android:textSize="18sp"
+        android:layout_marginBottom="30dp"/>
+
+    <TextView
         android:id="@+id/txt_turn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -17,6 +28,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="@id/guideline_50"
         app:layout_constraintBottom_toTopOf="@id/txt_you_are"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"/>
 
     <TextView
