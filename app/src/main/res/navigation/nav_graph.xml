@@ -23,7 +23,7 @@
       android:label="@string/register_fragment_label"
       tools:layout="@layout/fragment_register">
     <action
-        android:id="@+id/action_register_to_login"
+        android:id="@+id/action_register_to_dashboard"
         app:destination="@id/dashboardFragment" />
   </fragment>
 

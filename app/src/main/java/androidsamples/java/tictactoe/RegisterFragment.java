@@ -195,7 +195,7 @@ public class RegisterFragment extends Fragment {
     
     private void navigateToLogin() {
         viewModel.clear();
-        NavDirections action = RegisterFragmentDirections.actionRegisterToLogin();
-        Navigation.findNavController(view).navigate(action);
+        NavDirections action = RegisterFragmentDirections.actionRegisterToDashboard();
+        Navigation.findNavController(requireView()).navigate(action);
     }
 }
