@@ -38,4 +38,7 @@
   <string name="don_t_have_an_account">Don\'t have an account?\nCreate an Account</string>
     <string name="your_turn">Your Turn</string>
   <string name="you_are">You are</string>
+    <string name="current_user">Current User:</string>
+  <string name="join_a_game_or_create_a_new_one">Join a game or create a new one!</string>
+  <string name="open_games">Open Games:</string>
 </resources>

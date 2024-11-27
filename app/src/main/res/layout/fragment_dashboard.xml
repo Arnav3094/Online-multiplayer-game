@@ -6,41 +6,75 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".DashboardFragment"
-    android:paddingTop="160dp">  <!-- Added paddingTop to account for the status bar -->
+    android:paddingTop="80dp">  <!-- Added paddingTop to account for the status bar -->
 
-  <!-- User's score display -->
-  <TextView
-      android:id="@+id/txt_score"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="@string/score_placeholder"
-      android:textAppearance="@style/TextAppearance.AppCompat.Large"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintEnd_toEndOf="parent" />
+    <TextView
+        android:id="@+id/txt_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/current_user"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
-  <!-- RecyclerView for listing open games -->
-  <androidx.recyclerview.widget.RecyclerView
-      android:id="@+id/list"
-      android:layout_width="0dp"
-      android:layout_height="0dp"
-      android:layout_marginStart="16dp"
-      android:layout_marginEnd="16dp"
-      app:layoutManager="LinearLayoutManager"
-      app:layout_constraintTop_toBottomOf="@id/txt_score"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintBottom_toTopOf="@id/fab_new_game" />
 
-  <!-- Floating Action Button for creating a new game -->
-  <com.google.android.material.floatingactionbutton.FloatingActionButton
-      android:id="@+id/fab_new_game"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_margin="16dp"
-      android:contentDescription="@string/new_game"
-      app:srcCompat="@android:drawable/ic_input_add"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent" />
+    <!-- User's score display -->
+    <TextView
+        android:id="@+id/txt_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/score_placeholder"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_user"
+        android:layout_marginTop="40dp"/>
+
+    <TextView
+        android:id="@+id/txt_join_or_create"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/join_a_game_or_create_a_new_one"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txt_score"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/txt_open_games"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/open_games"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txt_join_or_create"
+        android:layout_marginTop="40dp"
+        app:layout_constraintBottom_toTopOf="@id/list"/>
+
+
+    <!-- RecyclerView for listing open games -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layoutManager="LinearLayoutManager"
+        app:layout_constraintTop_toBottomOf="@id/txt_open_games"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/fab_new_game" />
+
+    <!-- Floating Action Button for creating a new game -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_new_game"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="@string/new_game"
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
