@@ -95,6 +95,13 @@ public class GameFragment extends Fragment {
 			}).addOnFailureListener(e -> {
 				Log.e(TAG, "Failed to fetch Player 1 Email", e);
 			});
+
+			mGameRef.child("isSinglePlayer").get().addOnSuccessListener(snapshot -> {
+				isSinglePlayer = snapshot.getValue(boolean.class); // Assign the value to player1Email
+				Log.d(TAG, "isSinglePlayer: " + isSinglePlayer); // Optional log
+			}).addOnFailureListener(e -> {
+				Log.e(TAG, "Failed to fetch Player 1 Email", e);
+			});
 			
 			mGameRef.child("player2").get().addOnSuccessListener(snapshot -> {
 				player2Email = snapshot.getValue(String.class); // Assign the value to player1Email
