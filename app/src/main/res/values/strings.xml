@@ -1,41 +1,44 @@
 <resources>
-  <string name="app_name">Tic Tac Toe</string>
-  <string name="placeholder">Placeholder</string>
+    <string name="app_name">Tic Tac Toe</string>
+    <string name="placeholder">Placeholder</string>
 
-  <string name="score_placeholder">Score: Wins: 0, Losses: 0</string>
-  <string name="new_game">Start New Game</string>
-  <string name="game_name_placeholder">Game #1</string>
-  <string name="player_placeholder">Player: John Doe</string>
+    <string name="score_placeholder">0 Wins | 0 Losses | 0 Draws</string>
+    <string name="new_game">Start New Game</string>
+    <string name="game_name_placeholder">Game #1</string>
+    <string name="player_placeholder">Player: John Doe</string>
 
 
-  <string name="login_fragment_label">Login</string>
-  <string name="game_fragment_label">Tic Tac Toe: Game</string>
-  <string name="dashboard_fragment_label">Tic Tac Toe: Dashboard</string>
+    <string name="login_fragment_label">Login</string>
+    <string name="game_fragment_label">Tic Tac Toe: Game</string>
+    <string name="dashboard_fragment_label">Tic Tac Toe: Dashboard</string>
 
-  <string name="login">Log In</string>
-  <string name="logout">Log Out</string>
+    <string name="login">Log In</string>
+    <string name="logout">Log Out</string>
 
-  <string name="email">Email</string>
-  <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
 
-  <string name="blank"> </string>
+    <string name="blank"> </string>
 
-  <string name="new_game_dialog_message">Which type of game do you want to create?</string>
-  <string name="forfeit_game_dialog_message">Are you sure you want to forfeit this game?</string>
+    <string name="new_game_dialog_message">Which type of game do you want to create?</string>
+    <string name="forfeit_game_dialog_message">Are you sure you want to forfeit this game?</string>
 
-  <string name="two_player">Two-Player</string>
-  <string name="one_player">One-Player</string>
+    <string name="two_player">Two-Player</string>
+    <string name="one_player">One-Player</string>
 
-  <string name="yes">Yes</string>
-  <string name="cancel">Cancel</string>
-  <string name="confirm">Confirm</string>
-  <string name="register">New members, Register here!!</string>
-  <string name="confirm_password">Confirm Password</string>
-  <string name="register_fragment_label">Register_fragment_label string</string>
-  <string name="empty_cell">Empty Cell</string>
-  <string name="create_account">Create Account</string>
-  <string name="already_have_an_account">Already have an account?\nLog In</string>
-  <string name="don_t_have_an_account">Don\'t have an account?\nCreate an Account</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="register">New members, Register here!!</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="register_fragment_label">Register_fragment_label string</string>
+    <string name="empty_cell">Empty Cell</string>
+    <string name="create_account">Create Account</string>
+    <string name="already_have_an_account">Already have an account?\nLog In</string>
+    <string name="don_t_have_an_account">Don\'t have an account?\nCreate an Account</string>
     <string name="your_turn">Your Turn</string>
-  <string name="you_are">You are</string>
+    <string name="you_are">You are</string>
+    <string name="signed_in">Signed In:</string>
+    <string name="join_a_game_or_create_a_new_one">Join a game or create a new one!</string>
+    <string name="open_games">Open Games:</string>
 </resources>

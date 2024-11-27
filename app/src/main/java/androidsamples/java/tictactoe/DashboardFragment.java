@@ -19,7 +19,6 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -30,14 +29,17 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DashboardFragment extends Fragment {
+	
+	FirebaseManager firebaseManager;
 
 	private static final String TAG = "DashboardFragment";
 	private NavController mNavController;
 	private OpenGamesAdapter mAdapter;
 	private DatabaseReference mPlayerStatsRef;
-	private TextView txtScore;
+	private TextView txtStats, txtUser;
 
 	public DashboardFragment() {
 		// Empty constructor required
@@ -49,6 +51,7 @@ public class DashboardFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate: called");
 		setHasOptionsMenu(true); // To display the action menu
+		firebaseManager = FirebaseManager.getInstance();
 	}
 
 	@Override
@@ -63,8 +66,6 @@ public class DashboardFragment extends Fragment {
 		Log.d(TAG, "onViewCreated: called");
 
 		mNavController = Navigation.findNavController(view);
-		FirebaseApp.initializeApp(requireContext());
-		FirebaseManager firebaseManager = FirebaseManager.getInstance();
 
 		// Check if the user is not logged in
 		if (!firebaseManager.isSignedIn()) {
@@ -73,6 +74,10 @@ public class DashboardFragment extends Fragment {
 			mNavController.navigate(action);
 			return;
 		}
+		// Display the user's email
+		txtUser = view.findViewById(R.id.txt_user);
+		String currUser = getResources().getString(R.string.signed_in) + " " + firebaseManager.getCurrentUserEmail();
+		txtUser.setText(currUser);
 
 		// Initialize RecyclerView for open games
 		setupRecyclerView(view);
@@ -87,7 +92,7 @@ public class DashboardFragment extends Fragment {
 		});
 
 		// Initialize the TextView for displaying scores
-		txtScore = view.findViewById(R.id.txt_score);
+		txtStats = view.findViewById(R.id.txt_stats);
 
 		// Fetch and display player stats (wins, losses, draws)
 		fetchPlayerStats();
@@ -167,20 +172,22 @@ public class DashboardFragment extends Fragment {
 				mPlayerStatsRef = FirebaseDatabase.getInstance().getReference("playerStats").child(userEmail);
 			}
 		}
+		else{
+			Log.e(TAG, "fetchPlayerStats: User is null");
+		}
 
 		if (mPlayerStatsRef != null) {
 			mPlayerStatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
 				@Override
-				public void onDataChange(@NonNull DataSnapshot snapshot) {
-					int wins = snapshot.child("wins").getValue(Integer.class) != null
-							? snapshot.child("wins").getValue(Integer.class) : 0;
-					int losses = snapshot.child("losses").getValue(Integer.class) != null
-							? snapshot.child("losses").getValue(Integer.class) : 0;
-					int draws = snapshot.child("draws").getValue(Integer.class) != null
-							? snapshot.child("draws").getValue(Integer.class) : 0;
+				public void onDataChange(@NonNull DataSnapshot ds) {
+					int wins = Objects.requireNonNullElse(ds.child("wins").getValue(Integer.class), 0);
+					int losses = Objects.requireNonNullElse(ds.child("losses").getValue(Integer.class), 0);
+					int draws = Objects.requireNonNullElse(ds.child("draws").getValue(Integer.class), 0);
 
-					String scoreText = "Score: Wins " + wins + " | Losses " + losses + " | Draws " + draws;
-					txtScore.setText(scoreText);
+					String statsText = wins + " Win" + (wins != 1 ? "s" : "") + " | " +
+							losses + " Loss" + (losses != 1 ? "es" : "") + " | " +
+							draws + " Draw" + (draws != 1 ? "s" : "");
+					txtStats.setText(statsText);
 				}
 
 				@Override
@@ -188,6 +195,9 @@ public class DashboardFragment extends Fragment {
 					Log.e(TAG, "fetchPlayerStats: Database error", error.toException());
 				}
 			});
+		}
+		else{
+			Log.e(TAG, "fetchPlayerStats: Player stats reference is null");
 		}
 	}
 
