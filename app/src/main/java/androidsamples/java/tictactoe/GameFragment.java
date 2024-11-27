@@ -12,6 +12,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
@@ -20,13 +21,12 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +61,8 @@ public class GameFragment extends Fragment {
 	};
 	private String player1Email;
 	private String player2Email;
+	
+	TextView txtTurn, txtYouAre, txtPlayingAgainst;
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,20 +92,24 @@ public class GameFragment extends Fragment {
 			// getting the game data for that ID
 			mGameRef = database.getReference("games").child(mGameId);
 			Log.d(TAG, "Joining existing game with ID: " + mGameId);
+			
 			mGameRef.child("player1").get().addOnSuccessListener(snapshot -> {
 				player1Email = snapshot.getValue(String.class); // Assign the value to player1Email
 				Log.d(TAG, "Player 1 Email: " + player1Email); // Optional log
 			}).addOnFailureListener(e -> {
 				Log.e(TAG, "Failed to fetch Player 1 Email", e);
 			});
+			
 			mGameRef.child("player2").get().addOnSuccessListener(snapshot -> {
 				player2Email = snapshot.getValue(String.class); // Assign the value to player1Email
 				Log.d(TAG, "Player 2 Email: " + player2Email);
-				if(userEmail.equals(player1Email))
-					mySymbol = "X";
-				else
-					mySymbol ="O";
+				if(userEmail.equals(player1Email)) mySymbol = "X";
+				else mySymbol ="O";
 				Log.d(TAG, userEmail+" player1 "+player1Email+" mysymbol "+mySymbol);
+				
+				String youAreText = "You are: " + mySymbol;
+				txtYouAre.setText(youAreText);
+				Log.d(TAG, "onCreate: player 2 fetch");
 				joinExistingGame();// Optional log
 			}).addOnFailureListener(e -> {
 				Log.e(TAG, "Failed to fetch Player 2 Email", e);
@@ -175,7 +181,7 @@ public class GameFragment extends Fragment {
 		if (!isSinglePlayer) {
 			listenToGameUpdates();
 		}
-		else{
+    else{
 			if(currentTurn.equals("O")){
 				makeComputerMove();
 				Log.d(TAG,"Computer move in view Created");
@@ -186,6 +192,16 @@ public class GameFragment extends Fragment {
 				updateGameFields(mGameId, updates);
 			}
 		}
+		
+		txtTurn = view.findViewById(R.id.txt_turn);
+		txtYouAre = view.findViewById(R.id.txt_you_are);
+		txtPlayingAgainst = view.findViewById(R.id.txt_playing_against);
+		
+		String playingAgainstText;
+		Log.d(TAG, "Player 2 Email::: " + player2Email);
+		if(player2Email.equals("NULL")) playingAgainstText = "Waiting for player to join...";
+		else playingAgainstText = "Playing against: " + ( userEmail.equals(player1Email) ? player2Email :  player1Email);
+		txtPlayingAgainst.setText(playingAgainstText);
 	}
 
 	private void updateContentDescription(int i){
@@ -331,6 +347,7 @@ public class GameFragment extends Fragment {
 
 	private void switchTurn() {
 		currentTurn = currentTurn.equals("X") ? "O" : "X";
+		txtTurn.setVisibility(currentTurn.equals(mySymbol) ? View.VISIBLE : View.INVISIBLE);
 	}
 
 	private void makeComputerMove() {
