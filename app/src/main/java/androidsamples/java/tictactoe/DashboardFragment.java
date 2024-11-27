@@ -115,8 +115,9 @@ public class DashboardFragment extends Fragment {
 				List<String> openGameIds = new ArrayList<>();
 				for (DataSnapshot gameSnapshot : snapshot.getChildren()) {
 					GameFragment.GameData game = gameSnapshot.getValue(GameFragment.GameData.class);
-					boolean samePlayerGame = ( "NULL".equals(game.getWinner()) && (firebaseManager.getCurrentUserEmail().equals(game.player1) || firebaseManager.getCurrentUserEmail().equals(game.player2)));
-					if ( (game != null && "NULL".equals(game.getWinner()) && !game.isSinglePlayer && "NULL".equals(game.player2) ) || samePlayerGame  ) {
+					boolean gameOfTheSamePerson = ( "NULL".equals(game.getWinner()) && (firebaseManager.getCurrentUserEmail().equals(game.player1) || firebaseManager.getCurrentUserEmail().equals(game.player2)));
+					boolean gameHasOneSpotLeft = (game != null && "NULL".equals(game.getWinner()) && !game.isSinglePlayer && "NULL".equals(game.player2) );
+					if ( gameHasOneSpotLeft || gameOfTheSamePerson  ) {
 						String gameId = gameSnapshot.getKey();  // Extract game ID (key)
 						if (gameId != null) {
 							openGameIds.add(gameId);
