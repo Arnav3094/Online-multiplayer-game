@@ -370,5 +370,9 @@ public class GameFragment extends Fragment {
 			this.gameState = gameState;
 			this.winner = winner;
 		}
+		public String getWinner() {
+			return winner;
+		}
+
 	}
 }
