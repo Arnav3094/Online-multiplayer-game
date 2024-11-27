@@ -32,4 +32,5 @@
     <string name="register">New members, Register here!!</string>
   <string name="confirm_password">Confirm Password</string>
   <string name="register_fragment_label">Register_fragment_label string</string>
+    <string name="empty_cell">Empty Cell</string>
 </resources>
