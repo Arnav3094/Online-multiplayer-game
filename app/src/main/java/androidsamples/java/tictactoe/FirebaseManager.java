@@ -71,6 +71,11 @@ public class FirebaseManager {
 		void onSuccess();
 		void onError(Exception e);
 	}
+	
+	public String getCurrentUserEmail() {
+		FirebaseUser user = mAuth.getCurrentUser();
+		return user != null ? user.getEmail() : null;
+	}
 
 	// User data model for Firestore
 	private static class UserData {
