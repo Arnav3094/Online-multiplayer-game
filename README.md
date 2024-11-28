@@ -70,6 +70,9 @@ were large enough such that they were easy to select while using Talkback.
 ## Testing Approach
 Once the login and register functionality was built, unit testing and integration testing was done for the same.
 
+To ensure the app does not crash on any input, monkey testing was done. The app was tested on a physical device and the emulator.
+The app was put through over 100K events and no crashes were observed.
+
 ## Time Taken
 50 hours
 
