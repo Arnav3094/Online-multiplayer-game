@@ -105,9 +105,10 @@ public class GameFragment extends Fragment {
 				if(userEmail.equals(player1Email)) mySymbol = "X";
 				else mySymbol ="O";
 				Log.d(TAG, userEmail+" player1 " + player1Email + " mysymbol "+mySymbol);
-				
 				String youAreText = "You are: " + mySymbol;
-				txtYouAre.setText(youAreText);
+				if(txtYouAre == null)Log.e(TAG,"txtYouAre is null");
+				else txtYouAre.setText(youAreText);
+				
 				Log.d(TAG, "onCreate: player 2 fetch");
 				joinExistingGame();// Optional log
 			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch Player 2 Email", e));
@@ -188,6 +189,19 @@ public class GameFragment extends Fragment {
 				updates.put("gameState",gameState);
 				updateGameFields(mGameId, updates);
 			}
+			
+			mGameRef.child("currentTurn").addValueEventListener(new ValueEventListener() {
+				@Override
+				public void onDataChange(@NonNull DataSnapshot snapshot) {
+					Log.d(TAG, "onViewCreated: onDataChange: updating turn ui");
+					updateTurnUI();
+				}
+				
+				@Override
+				public void onCancelled(@NonNull DatabaseError error) {
+					Log.e(TAG, "Failed to fetch current turn", error.toException());
+				}
+			});
 		}
 		
 		txtTurn = view.findViewById(R.id.txt_turn);
@@ -208,6 +222,36 @@ public class GameFragment extends Fragment {
 			@Override
 			public void onCancelled(@NonNull DatabaseError error) {
 				Log.e(TAG, "Failed to fetch Player 2 Email", error.toException());
+			}
+		});
+		
+		mGameRef.child("winner").addValueEventListener(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot snapshot) {
+				// if winner is "NULL" then nothing to do
+				// if winner is "O" or "X" then change your turn to you win/lose/draw
+				String winnerSymbol = snapshot.getValue(String.class);
+				if(winnerSymbol == null){
+					Log.e(TAG, "Winner is null");
+					return;
+				}
+				if(winnerSymbol.equals("NULL")) return;
+				else if(winnerSymbol.equals(mySymbol)){
+					Log.d(TAG, "onViewCreated: "+ "You win");
+					txtTurn.setText(getResources().getString(R.string.win));
+				} else if(winnerSymbol.equals("draw")){
+					Log.d(TAG, "onViewCreated: " + "Draw");
+					txtTurn.setText(getResources().getString(R.string.draw));
+				}
+				else{
+					Log.d(TAG, "onViewCreated: " + "You lose");
+					txtTurn.setText(getResources().getString(R.string.lose));
+				}
+			}
+			
+			@Override
+			public void onCancelled(@NonNull DatabaseError error) {
+			
 			}
 		});
 	}
@@ -446,12 +490,7 @@ public class GameFragment extends Fragment {
 					currentTurn = data.currentTurn;
 					gameState = data.gameState;
 					updateUI();
-					boolean myTurn = currentTurn.equals(mySymbol);
-					Log.d(TAG,"Current turn: " + currentTurn + " mySymbol: " + mySymbol);
-					txtTurn.setVisibility(myTurn ? View.VISIBLE : View.INVISIBLE);
-					for(Button button : mButtons){
-						button.setEnabled(myTurn);
-					}
+					updateTurnUI();
 				}
 			}
 
@@ -461,16 +500,33 @@ public class GameFragment extends Fragment {
 			}
 		});
 	}
+	
+	private void updateTurnUI(){
+		boolean myTurn = currentTurn.equals(mySymbol);
+		Log.d(TAG,"Current turn: " + currentTurn + " mySymbol: " + mySymbol);
+		txtTurn.setVisibility(myTurn ? View.VISIBLE : View.INVISIBLE);
+		for(Button button : mButtons){
+			button.setEnabled(myTurn);
+		}
+	}
 
 	private void showWinDialog(String winner) {
-		String message = "Draw".equals(winner) ? "It's a draw!" : winner + " wins!";
+		String dialogMessage="";
+		if(winner.equals(mySymbol))
+		{
+			dialogMessage ="Congrats You Win!!";
+		}
+		else{
+			dialogMessage ="You Lost :(";
+		}
+		String message = "Draw".equals(winner) ? "It's a draw!" : dialogMessage;
 		if (!"Draw".equals(winner) && winner.equals(mySymbol)) {
 			updatePlayerStats("win");
 		} else if (!"Draw".equals(winner)) {
 			updatePlayerStats("loss");
 		}
 		if(getActivity() == null){
-			Log.e(TAG,"Activity is null");
+//			Log.e(TAG,"Activity is null");
 			return;
 		}
 		new AlertDialog.Builder(getActivity())
