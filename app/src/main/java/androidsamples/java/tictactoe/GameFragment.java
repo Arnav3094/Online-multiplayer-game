@@ -210,8 +210,6 @@ public class GameFragment extends Fragment {
 				Log.e(TAG, "Failed to fetch Player 2 Email", error.toException());
 			}
 		});
-		
-		
 	}
 
 	private void updateContentDescription(int i){
@@ -225,6 +223,7 @@ public class GameFragment extends Fragment {
 		else{
 			Log.e(TAG, "Something went wrong. mButtons["+i+"].getText() = " + mButtons[i].getText());
 		}
+
 	}
 
 	private void updateContentDescription(){

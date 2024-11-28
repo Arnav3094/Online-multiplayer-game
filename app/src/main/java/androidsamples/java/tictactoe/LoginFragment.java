@@ -39,13 +39,7 @@ public class LoginFragment extends Fragment {
 		super.onCreate(savedInstanceState);
 		Log.d(TAG, "onCreate: called");
 		firebaseManager = FirebaseManager.getInstance();
-		if (firebaseManager.isSignedIn()) {
-			Log.d(TAG, "onCreate: User already signed in");
-			NavDirections action = LoginFragmentDirections.actionLoginSuccessful();
-			Log.d(TAG, "onCreate: navigating to dashboard fragment");
-			Navigation.findNavController(requireView()).navigate(action);
-		}
-		Log.d(TAG, "onCreate: User not signed in");
+
 		Log.d(TAG, "onCreate: initializing view model");
 		viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 	}
@@ -100,7 +94,13 @@ public class LoginFragment extends Fragment {
 		txtDontHaveAccount.setOnClickListener(v -> navigateToRegister());
 
 		btnLogin.setOnClickListener(v -> loginButtonAction());
-		
+		if (firebaseManager.isSignedIn()) {
+			Log.d(TAG, "onCreate: User already signed in");
+			NavDirections action = LoginFragmentDirections.actionLoginSuccessful();
+			Log.d(TAG, "onCreate: navigating to dashboard fragment");
+			Navigation.findNavController(view).navigate(action);
+		}
+		Log.d(TAG, "onCreate: User not signed in");
 		Log.d(TAG, "onCreateView: returning view");
 		return view;
 	}
