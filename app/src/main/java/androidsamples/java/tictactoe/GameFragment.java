@@ -469,7 +469,11 @@ public class GameFragment extends Fragment {
 		} else if (!"Draw".equals(winner)) {
 			updatePlayerStats("loss");
 		}
-		new AlertDialog.Builder(requireActivity())
+		if(getActivity() == null){
+			Log.e(TAG,"Activity is null");
+			return;
+		}
+		new AlertDialog.Builder(getActivity())
 				.setTitle("Game Over")
 				.setMessage(message)
 				.setPositiveButton("OK", (dialog, which) -> mNavController.popBackStack())
