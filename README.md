@@ -42,6 +42,10 @@ No known bugs
 5. The two player mode was implemented
 6. The dashboard was updated to show the list of open games and the stats of the player
 7. Fixes were made along with ad-hoc testing of the application
+   # Design Choices
+   1. Killing the app from the app switcher does not forfeit the game for the person who left. For both single and double player games, if a person leaves the app by process death or just leaving the app(not forfeiting the game), then the person will be able to rejoin the game(it will be available in list of open games only for that person). 
+   2.  If a player leaves the match(not forfeiting it) and the other player forfeits the game then the person who left will not receive a point.
+   3.  Win or loose or draw dialogue box is shown only once. If the user rotates the mobile, it will just show the state of the game when it ended and will not show the popup again. This prevents the popup from appearing way too many times.
 
 ## Accessibility
 The application was built while keeping accessibility in mind. It was ensured that relevant items on
