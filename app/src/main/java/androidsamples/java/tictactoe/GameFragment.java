@@ -353,7 +353,7 @@ public class GameFragment extends Fragment {
 					updates.put("gameState",gameState);
 					updateGameFields(mGameId, updates);
 					return;
-				}, 500);
+				}, 0);
 			}
 //			sleep(1000);
 
