@@ -43,4 +43,7 @@
     <string name="open_games">Open Games:</string>
     <string name="list_of_open_games">List of open games</string>
     <string name="playing_against">Playing Against:</string>
+    <string name="win">You win!</string>
+    <string name="draw">It\'s a Draw</string>
+    <string name="lose">You lose :(</string>
 </resources>
