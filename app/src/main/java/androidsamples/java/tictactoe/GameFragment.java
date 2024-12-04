@@ -516,8 +516,12 @@ public class GameFragment extends Fragment {
 		}
 		return true;
 	}
-
+	
+	/**
+	 * Update the text on the buttons to match game state
+	 */
 	private void updateUI() {
+		Log.d(TAG,"updateUI: gameState: " + gameState);
 		for (int i = 0; i < GRID_SIZE; i++) {
 			mButtons[i].setText(gameState.get(i));
 		}
@@ -527,6 +531,9 @@ public class GameFragment extends Fragment {
 		mGameRef.addValueEventListener(listenToGameUpdatesListener);
 	}
 	
+	/**
+	 * Updates UI regarding turn state such as "Your turn"'s visibility, and button enable state
+	 */
 	private void updateTurnUI(){
 		boolean myTurn = currentTurn.equals(mySymbol);
 		Log.d(TAG,"updateTurnUI: currentTurn: " + currentTurn + " mySymbol: " + mySymbol);
