@@ -161,6 +161,8 @@ public class GameFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		Log.d(TAG, "onViewCreated: called");
+		
 		mNavController = Navigation.findNavController(view);
 		Log.d(TAG, "IN THE GAME");
 		for (int i = 0; i < GRID_SIZE; i++) {
@@ -225,8 +227,10 @@ public class GameFragment extends Fragment {
 	private final ValueEventListener listenToGameUpdatesListener = new ValueEventListener() {
 		@Override
 		public void onDataChange(@NonNull DataSnapshot snapshot) {
+			Log.d(TAG, "listenToGameUpdatesListener: onDataChange: called");
 			GameData data = snapshot.getValue(GameData.class);
 			if (data != null) {
+				Log.d(TAG, "listenToGameUpdatesListener: onDataChange: data.gameState = " + data.gameState);
 //					otherForfeited = !(data.getWinner().equals("NULL"));
 				winner = data.winner;
 				
@@ -436,7 +440,6 @@ public class GameFragment extends Fragment {
 		}
 	}
 	private void updatePlayerStats(String result) {
-//		Log.d(TAG,"HI");
 		if (mPlayerStatsRef == null) return;
 
 		mPlayerStatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
