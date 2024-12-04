@@ -15,6 +15,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -47,8 +48,6 @@ public class GameFragment extends Fragment {
 	private DatabaseReference mPlayerStatsRef;
 	private String userEmail;
 	private String winner = "NULL";
-	private Integer scoreUpdated = 0;
-	private Integer popCnt = 0;
 	private final String[] positions = {
 			"Top-left", "Top-center", "Top-right",
 			"Middle-left", "Center", "Middle-right",
@@ -56,7 +55,7 @@ public class GameFragment extends Fragment {
 	};
 	private String player1Email;
 	private String player2Email;
-	
+	private  GameViewModel gViewModel;
 	
 	TextView txtTurn, txtYouAre, txtPlayingAgainst;
 
@@ -145,11 +144,11 @@ public class GameFragment extends Fragment {
 							.setPositiveButton(R.string.yes, (d, which) -> {
 								Log.d(TAG, "User confirmed forfeit. Navigating back.");
 								// Loss for the player who forfeited
-								popCnt++;
+								gViewModel.popCnt++;
 								updatePlayerStats("loss");
-								scoreUpdated++;
+								gViewModel.scoreUpdated++;
 								mGameRef.child("winner").setValue((Objects.equals(mySymbol, "X"))?"O":"X");
-								Log.d(TAG,"Number of popups: "+popCnt+" player score changed: "+scoreUpdated);
+								Log.d(TAG,"Number of popups: "+gViewModel.popCnt+" player score changed: "+gViewModel.scoreUpdated);
 								mNavController.popBackStack();
 							})
 							.setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
@@ -176,7 +175,8 @@ public class GameFragment extends Fragment {
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		Log.d(TAG, "onViewCreated: called");
-		
+
+		gViewModel = new ViewModelProvider(requireActivity()).get(GameViewModel.class);
 		mNavController = Navigation.findNavController(view);
 		Log.d(TAG, "IN THE GAME");
 		for (int i = 0; i < GRID_SIZE; i++) {
@@ -223,24 +223,24 @@ public class GameFragment extends Fragment {
 				if(!(winner.equals("NULL"))) { // Game has reached a conclusion
 					Log.d(TAG,"Winner is decided: "+winner);
 					if(winner.equals("draw")){
-						if(scoreUpdated == 0) {
+						if(gViewModel.scoreUpdated == 0) {
 							updatePlayerStats("draw");
-							scoreUpdated++;
+							gViewModel.scoreUpdated++;
 						}
-						if(popCnt == 0) {
+						if(gViewModel.popCnt == 0) {
 							Log.d(TAG,"Draw in onDatachange");
 							showWinDialog("Draw");
-							popCnt++;
+							gViewModel.popCnt++;
 						}
 					}
 					else{
-						if(scoreUpdated == 0) {
+						if(gViewModel.scoreUpdated == 0) {
 							updatePlayerStats(winner.equals(mySymbol) ? "win" : "loss");
-							scoreUpdated++;
+							gViewModel.scoreUpdated++;
 						}
-						if(popCnt == 0) {
+						if(gViewModel.popCnt == 0) {
 							showWinDialog(winner);
-							popCnt++;
+							gViewModel.popCnt++;
 						}
 					}
 				}
@@ -352,14 +352,14 @@ public class GameFragment extends Fragment {
 //			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,currentTurn,player1Email,player2Email));
 			winner = (currentTurn.equals(mySymbol) ? "win" : "loss");
 			Log.d(TAG,"Winner is: "+winner+" inside checkwin ");
-			Log.d(TAG," scoreupdate: " + scoreUpdated);
-			if(scoreUpdated == 0) {
+			Log.d(TAG," scoreupdate: " + gViewModel.scoreUpdated);
+			if(gViewModel.scoreUpdated == 0) {
 				updatePlayerStats(currentTurn.equals(mySymbol) ? "win" : "loss");
-				scoreUpdated++;
+				gViewModel.scoreUpdated++;
 			}
-			if(popCnt == 0) {
+			if(gViewModel.popCnt == 0) {
 				showWinDialog(currentTurn);
-				popCnt++;
+				gViewModel.popCnt++;
 			}
 		}
 		else if (isDraw()) {
@@ -370,14 +370,14 @@ public class GameFragment extends Fragment {
 			updateGameFields(mGameId, updates);
 //			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"draw",player1Email,player2Email));
 			winner = "draw";
-			Log.d(TAG,"Drawn popcnt "+popCnt);
-			if(scoreUpdated == 0) {
+			Log.d(TAG,"Drawn gViewModel.popCnt "+gViewModel.popCnt);
+			if(gViewModel.scoreUpdated == 0) {
 				updatePlayerStats("draw");
-				scoreUpdated++;
+				gViewModel.scoreUpdated++;
 			}
-			if(popCnt == 0) {
+			if(gViewModel.popCnt == 0) {
 				showWinDialog("Draw");
-				popCnt++;
+				gViewModel.popCnt++;
 			}
 		}
 		else {

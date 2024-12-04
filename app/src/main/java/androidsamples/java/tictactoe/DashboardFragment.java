@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
@@ -40,7 +41,7 @@ public class DashboardFragment extends Fragment {
 	private OpenGamesAdapter mAdapter;
 	private DatabaseReference mPlayerStatsRef;
 	private TextView txtStats, txtUser;
-
+	private GameViewModel gViewModel;
 	public DashboardFragment() {
 		// Empty constructor required
 		Log.d(TAG, "DashboardFragment: Constructor called");
@@ -63,6 +64,8 @@ public class DashboardFragment extends Fragment {
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+
+		gViewModel = new ViewModelProvider(requireActivity()).get(GameViewModel.class);
 		Log.d(TAG, "onViewCreated: called");
 
 		mNavController = Navigation.findNavController(view);
@@ -101,7 +104,7 @@ public class DashboardFragment extends Fragment {
 	private void setupRecyclerView(View view) {
 		Log.d(TAG, "setupRecyclerView: Initializing RecyclerView");
 		RecyclerView recyclerView = view.findViewById(R.id.list);
-		mAdapter = new OpenGamesAdapter(new ArrayList<>()); // Temporary empty list
+		mAdapter = new OpenGamesAdapter(new ArrayList<>(),gViewModel); // Temporary empty list
 		recyclerView.setAdapter(mAdapter);
 	}
 
@@ -150,6 +153,7 @@ public class DashboardFragment extends Fragment {
 			boolean isSinglePlayer = (gameType.equals(getString(R.string.one_player)));
 			String currentTurn ="X";
 			String mGameId = createNewGame(isSinglePlayer, currentTurn);
+			gViewModel.reset();
 			NavDirections action = DashboardFragmentDirections.actionGame(gameType, mGameId);
 			mNavController.navigate(action);
 		};

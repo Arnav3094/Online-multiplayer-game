@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,7 +25,9 @@ import java.util.Objects;
 public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.ViewHolder> {
 	private static final String TAG = "OpenGamesAdapter";
 	private List<String> mGameList;
-	public OpenGamesAdapter(List<String> gameList) {
+	public GameViewModel gViewModel;
+	public OpenGamesAdapter(List<String> gameList, GameViewModel gviewModel) {
+		this.gViewModel = gviewModel;
 		mGameList = gameList != null ? gameList : new ArrayList<>();
 		Log.d(TAG, "Adapter initialized with " + mGameList.size() + " games.");
 	}
@@ -61,6 +64,7 @@ public class OpenGamesAdapter extends RecyclerView.Adapter<OpenGamesAdapter.View
 					if(!(firebaseManager.getCurrentUserEmail().equals(player1Email))) {
 						mGameRef.child("player2").setValue(firebaseManager.getCurrentUserEmail());
 					}
+					gViewModel.reset();
 					NavDirections action = DashboardFragmentDirections.actionGame("two_player", gameId);
 					Navigation.findNavController(v).navigate(action);
 				}
