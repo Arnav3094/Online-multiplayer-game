@@ -227,28 +227,36 @@ public class DashboardFragment extends Fragment {
 		}
 
 		if (mPlayerStatsRef != null) {
-			mPlayerStatsRef.addValueEventListener(new ValueEventListener() {
-				@Override
-				public void onDataChange(@NonNull DataSnapshot ds) {
-					int wins = Objects.requireNonNullElse(ds.child("wins").getValue(Integer.class), 0);
-					int losses = Objects.requireNonNullElse(ds.child("losses").getValue(Integer.class), 0);
-					int draws = Objects.requireNonNullElse(ds.child("draws").getValue(Integer.class), 0);
-
-					String statsText = wins + " Win" + (wins != 1 ? "s" : "") + " | " +
-							losses + " Loss" + (losses != 1 ? "es" : "") + " | " +
-							draws + " Draw" + (draws != 1 ? "s" : "");
-					txtStats.setText(statsText);
-				}
-
-				@Override
-				public void onCancelled(@NonNull DatabaseError error) {
-					Log.e(TAG, "fetchPlayerStats: Database error", error.toException());
-				}
-			});
+			mPlayerStatsRef.addValueEventListener(statsListener);
 		}
 		else{
 			Log.e(TAG, "fetchPlayerStats: Player stats reference is null");
 		}
+	}
+	
+	private final ValueEventListener statsListener = new ValueEventListener() {
+		@Override
+		public void onDataChange(@NonNull DataSnapshot ds) {
+			int wins = Objects.requireNonNullElse(ds.child("wins").getValue(Integer.class), 0);
+			int losses = Objects.requireNonNullElse(ds.child("losses").getValue(Integer.class), 0);
+			int draws = Objects.requireNonNullElse(ds.child("draws").getValue(Integer.class), 0);
+			
+			String statsText = wins + " Win" + (wins != 1 ? "s" : "") + " | " +
+					losses + " Loss" + (losses != 1 ? "es" : "") + " | " +
+					draws + " Draw" + (draws != 1 ? "s" : "");
+			txtStats.setText(statsText);
+		}
+		@Override
+		public void onCancelled(@NonNull DatabaseError error) {
+			Log.e(TAG, "fetchPlayerStats: Database error", error.toException());
+		}
+	};
+	
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		Log.d(TAG, "onDetach: Removing ValueEventListener");
+		mPlayerStatsRef.removeEventListener(statsListener);
 	}
 
 	@Override
