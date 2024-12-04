@@ -47,7 +47,7 @@ public class GameFragment extends Fragment {
 	private DatabaseReference mGameRef;
 	private DatabaseReference mPlayerStatsRef;
 	private String userEmail;
-	private String winner ="NULL";
+	private String winner = "NULL";
 	private Integer scoreUpdated = 0;
 	private Integer popCnt = 0;
 	private final String[] positions = {
@@ -57,6 +57,7 @@ public class GameFragment extends Fragment {
 	};
 	private String player1Email;
 	private String player2Email;
+	
 	
 	TextView txtTurn, txtYouAre, txtPlayingAgainst;
 
@@ -89,16 +90,19 @@ public class GameFragment extends Fragment {
 			mGameRef = database.getReference("games").child(mGameId);
 			Log.d(TAG, "Joining existing game with ID: " + mGameId);
 			
+			// One time retrieval when the game fragment is created/re-created
 			mGameRef.child("player1").get().addOnSuccessListener(snapshot -> {
 				player1Email = snapshot.getValue(String.class); // Assign the value to player1Email
 				Log.d(TAG, "Player 1 Email: " + player1Email); // Optional log
 			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch Player 1 Email", e));
 
+			// One time retrieval when the game fragment is created/re-created
 			mGameRef.child("isSinglePlayer").get().addOnSuccessListener(snapshot -> {
 				isSinglePlayer = Boolean.TRUE.equals(snapshot.getValue(boolean.class)); // Assign the value to player1Email
 				Log.d(TAG, "isSinglePlayer: " + isSinglePlayer); // Optional log
 			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch Player 1 Email", e));
 			
+			// One time retrieval when the game fragment is created/re-created
 			mGameRef.child("player2").get().addOnSuccessListener(snapshot -> {
 				player2Email = snapshot.getValue(String.class); // Assign the value to player1Email
 				Log.d(TAG, "Player 2 Email: " + player2Email);
@@ -109,53 +113,44 @@ public class GameFragment extends Fragment {
 				if(txtYouAre == null)Log.e(TAG,"txtYouAre is null");
 				else txtYouAre.setText(youAreText);
 				
-				Log.d(TAG, "onCreate: player 2 fetch");
-				joinExistingGame();// Optional log
+				joinExistingGame();
 			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch Player 2 Email", e));
 		}
+		
+		mGameRef.child("winner").addValueEventListener(setWinner);
 
 		OnBackPressedCallback callback = new OnBackPressedCallback(true) {
 			@Override
 			public void handleOnBackPressed() {
 				Log.d(TAG, "Back pressed");
-				mGameRef.child("winner").addListenerForSingleValueEvent(new ValueEventListener() {
-					@Override
-					public void onDataChange(@NonNull DataSnapshot snapshot) {
-						String winner = snapshot.getValue(String.class);
-						if (Objects.equals(winner, "NULL")) {
-							// No winner set yet
-							Log.d("GameFragment", "Winner is null (no winner yet)");
-							AlertDialog dialog = new AlertDialog.Builder(requireActivity())
-									.setTitle(R.string.confirm)
-									.setMessage(R.string.forfeit_game_dialog_message)
-									.setPositiveButton(R.string.yes, (d, which) -> {
-										Log.d(TAG, "User confirmed forfeit. Navigating back.");
-										//Loss for the player who forfeited
-										popCnt++;
-										updatePlayerStats("loss");
-										scoreUpdated++;
-										mGameRef.child("winner").setValue((Objects.equals(mySymbol, "X"))?"O":"X");
-										Log.d(TAG,"Number of popups: "+popCnt+" player score changed: "+scoreUpdated);
-										mNavController.popBackStack();
-									})
-									.setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
-									.create();
-							dialog.show();
-						} else {
-							// Winner exists
-							Log.d("GameFragment", "Winner is: " + winner);
-							mNavController.popBackStack();
-						}
-					}
-
-					@Override
-					public void onCancelled(@NonNull DatabaseError error) {
-						Log.e("GameFragment", "Error fetching winner", error.toException());
-					}
-				});
+				if(Objects.equals(winner, "NULL")){
+					Log.d("GameFragment", "winner is NULL, showing alert");
+					AlertDialog dialog = new AlertDialog.Builder(requireActivity())
+							.setTitle(R.string.confirm)
+							.setMessage(R.string.forfeit_game_dialog_message)
+							.setPositiveButton(R.string.yes, (d, which) -> {
+								Log.d(TAG, "User confirmed forfeit. Navigating back.");
+								// Loss for the player who forfeited
+								popCnt++;
+								updatePlayerStats("loss");
+								scoreUpdated++;
+								mGameRef.child("winner").setValue((Objects.equals(mySymbol, "X"))?"O":"X");
+								Log.d(TAG,"Number of popups: "+popCnt+" player score changed: "+scoreUpdated);
+								mNavController.popBackStack();
+							})
+							.setNegativeButton(R.string.cancel, (d, which) -> d.dismiss())
+							.create();
+					dialog.show();
+				} else {
+					// Winner exists
+					Log.d("GameFragment", "Winner is: " + winner);
+					mNavController.popBackStack();
+				}
 			}
 		};
 		requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+		
+		Log.d(TAG, "onCreate: over");
 	}
 
 	@Override
@@ -190,70 +185,146 @@ public class GameFragment extends Fragment {
 				updateGameFields(mGameId, updates);
 			}
 			
-			mGameRef.child("currentTurn").addValueEventListener(new ValueEventListener() {
-				@Override
-				public void onDataChange(@NonNull DataSnapshot snapshot) {
-					Log.d(TAG, "onViewCreated: onDataChange: updating turn ui");
-					updateTurnUI();
-				}
-				
-				@Override
-				public void onCancelled(@NonNull DatabaseError error) {
-					Log.e(TAG, "Failed to fetch current turn", error.toException());
-				}
-			});
+			mGameRef.child("currentTurn").addValueEventListener(turnUIEventListener);
 		}
 		
 		txtTurn = view.findViewById(R.id.txt_turn);
 		txtYouAre = view.findViewById(R.id.txt_you_are);
 		txtPlayingAgainst = view.findViewById(R.id.txt_playing_against);
 		
-		mGameRef.child("player2").addValueEventListener(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull DataSnapshot snapshot) {
-				player2Email = snapshot.getValue(String.class);
-				Log.d(TAG, "Player 2 Email:: " + player2Email);
-				String playingAgainstText;
-				if(player2Email.equals("NULL")) playingAgainstText = "Waiting for player to join...";
-				else playingAgainstText = "Playing against: " + ( userEmail.equals(player1Email) ? player2Email :  player1Email);
-				txtPlayingAgainst.setText(playingAgainstText);
-				
-			}
-			@Override
-			public void onCancelled(@NonNull DatabaseError error) {
-				Log.e(TAG, "Failed to fetch Player 2 Email", error.toException());
-			}
-		});
+		mGameRef.child("player2").addValueEventListener(player2Listener);
 		
-		mGameRef.child("winner").addValueEventListener(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull DataSnapshot snapshot) {
-				// if winner is "NULL" then nothing to do
-				// if winner is "O" or "X" then change your turn to you win/lose/draw
-				String winnerSymbol = snapshot.getValue(String.class);
-				if(winnerSymbol == null){
-					Log.e(TAG, "Winner is null");
-					return;
+		mGameRef.child("winner").addValueEventListener(winnerUIListener);
+	}
+	
+	private final ValueEventListener setWinner = new ValueEventListener() {
+		@Override
+		public void onDataChange(@NonNull DataSnapshot snapshot) {
+			Log.d(TAG, "setWinner:onDataChange: winner = " + winner);
+			winner = snapshot.getValue(String.class);
+		}
+		@Override
+		public void onCancelled(@NonNull DatabaseError error) {
+			Log.e(TAG, "Failed to fetch winner", error.toException());
+		}
+	};
+	
+	private final ValueEventListener turnUIEventListener = new ValueEventListener() {
+		@Override
+		public void onDataChange(@NonNull DataSnapshot snapshot) {
+			Log.d(TAG, "turnUIEventListener: onDataChange: updating turn ui");
+			updateTurnUI();
+		}
+		
+		@Override
+		public void onCancelled(@NonNull DatabaseError error) {
+			Log.e(TAG, "Failed to fetch current turn", error.toException());
+		}
+	};
+	
+	private final ValueEventListener listenToGameUpdatesListener = new ValueEventListener() {
+		@Override
+		public void onDataChange(@NonNull DataSnapshot snapshot) {
+			GameData data = snapshot.getValue(GameData.class);
+			if (data != null) {
+//					otherForfeited = !(data.getWinner().equals("NULL"));
+				winner = data.winner;
+				
+				if(!(winner.equals("NULL"))) { // Game has reached a conclusion
+					Log.d(TAG,"Winner is decided: "+winner);
+					if(winner.equals("draw")){
+						if(scoreUpdated == 0) {
+							updatePlayerStats("draw");
+							scoreUpdated++;
+						}
+						if(popCnt == 0) {
+							Log.d(TAG,"Draw in onDatachange");
+							showWinDialog("Draw");
+							popCnt++;
+						}
+					}
+					else{
+						if(scoreUpdated == 0) {
+							updatePlayerStats(winner.equals(mySymbol) ? "win" : "loss");
+							scoreUpdated++;
+						}
+						if(popCnt == 0) {
+							showWinDialog(winner);
+							popCnt++;
+						}
+					}
 				}
-				if(winnerSymbol.equals("NULL")) return;
-				else if(winnerSymbol.equals(mySymbol)){
-					Log.d(TAG, "onViewCreated: "+ "You win");
-					txtTurn.setText(getResources().getString(R.string.win));
-				} else if(winnerSymbol.equals("draw")){
-					Log.d(TAG, "onViewCreated: " + "Draw");
-					txtTurn.setText(getResources().getString(R.string.draw));
-				}
-				else{
-					Log.d(TAG, "onViewCreated: " + "You lose");
-					txtTurn.setText(getResources().getString(R.string.lose));
-				}
+				currentTurn = data.currentTurn;
+				gameState = data.gameState;
+				updateUI();
+				updateTurnUI();
 			}
-			
-			@Override
-			public void onCancelled(@NonNull DatabaseError error) {
-			
+		}
+		
+		@Override
+		public void onCancelled(@NonNull DatabaseError error) {
+			Log.e(TAG, "Failed to listen for game updates", error.toException());
+		}
+	};
+	
+	private final ValueEventListener winnerUIListener = new ValueEventListener() {
+		@Override
+		public void onDataChange(@NonNull DataSnapshot snapshot) {
+			// if winner is "NULL" then nothing to do
+			// if winner is "O" or "X" then change your turn to you win/lose/draw
+			String winnerSymbol = snapshot.getValue(String.class);
+			if(winnerSymbol == null){
+				Log.e(TAG, "Winner is null");
+				return;
 			}
-		});
+			if(winnerSymbol.equals("NULL")) return;
+			else if(winnerSymbol.equals(mySymbol)){
+				Log.d(TAG, "onViewCreated: "+ "You win");
+				txtTurn.setText(getResources().getString(R.string.win));
+			} else if(winnerSymbol.equals("draw")){
+				Log.d(TAG, "onViewCreated: " + "Draw");
+				txtTurn.setText(getResources().getString(R.string.draw));
+			}
+			else{
+				Log.d(TAG, "onViewCreated: " + "You lose");
+				txtTurn.setText(getResources().getString(R.string.lose));
+			}
+		}
+		
+		@Override
+		public void onCancelled(@NonNull DatabaseError error) {
+			Log.e(TAG, "Failed to fetch winner", error.toException());
+		}
+	};
+	
+	private final ValueEventListener player2Listener = new ValueEventListener() {
+		@Override
+		public void onDataChange(@NonNull DataSnapshot snapshot) {
+			player2Email = snapshot.getValue(String.class);
+			Log.d(TAG, "Player 2 Email:: " + player2Email);
+			String playingAgainstText;
+			if(player2Email.equals("NULL")) playingAgainstText = "Waiting for player to join...";
+			else playingAgainstText = "Playing against: " + ( userEmail.equals(player1Email) ? player2Email :  player1Email);
+			txtPlayingAgainst.setText(playingAgainstText);
+			
+		}
+		@Override
+		public void onCancelled(@NonNull DatabaseError error) {
+			Log.e(TAG, "Failed to fetch Player 2 Email", error.toException());
+		}
+	};
+	
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		Log.d(TAG, "onDetach: called");
+		Log.d(TAG, "onDetach: removing valueEventListeners");
+		mGameRef.child("winner").removeEventListener(setWinner);
+		mGameRef.child("winner").removeEventListener(winnerUIListener);
+		mGameRef.removeEventListener(listenToGameUpdatesListener);
+		mGameRef.child("player2").removeEventListener(player2Listener);
+		mGameRef.child("currentTurn").removeEventListener(turnUIEventListener);
+		Log.d(TAG, "onDetach: removed valueEventListeners");
 	}
 
 	private void updateContentDescription(int i){
@@ -306,14 +377,14 @@ public class GameFragment extends Fragment {
 		updateUI();
 		if (checkWin()) {
 			Map<String, Object> updates = new HashMap<>();
-			updates.put("currenTurn",currentTurn);
+			updates.put("currentTurn",currentTurn);
 			updates.put("gameState",gameState);
 			updates.put("winner",currentTurn);
 			updateGameFields(mGameId, updates);
 //			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,currentTurn,player1Email,player2Email));
 			winner = (currentTurn.equals(mySymbol) ? "win" : "loss");
 			Log.d(TAG,"Winner is: "+winner+" inside checkwin ");
-			Log.d(TAG," scoreupdate: "+scoreUpdated);
+			Log.d(TAG," scoreupdate: " + scoreUpdated);
 			if(scoreUpdated == 0) {
 				updatePlayerStats(currentTurn.equals(mySymbol) ? "win" : "loss");
 				scoreUpdated++;
@@ -324,7 +395,7 @@ public class GameFragment extends Fragment {
 			}
 		} else if (isDraw()) {
 			Map<String, Object> updates = new HashMap<>();
-			updates.put("currenTurn",currentTurn);
+			updates.put("currentTurn",currentTurn);
 			updates.put("gameState",gameState);
 			updates.put("winner","draw");
 			updateGameFields(mGameId, updates);
@@ -353,7 +424,7 @@ public class GameFragment extends Fragment {
 					updates.put("gameState",gameState);
 					updateGameFields(mGameId, updates);
 					return;
-				}, 500);
+				}, 0);
 			}
 //			sleep(1000);
 
@@ -362,8 +433,6 @@ public class GameFragment extends Fragment {
 			updates.put("currentTurn",currentTurn);
 			updates.put("gameState",gameState);
 			updateGameFields(mGameId, updates);
-//			mGameRef.setValue(new GameData(isSinglePlayer, currentTurn, gameState,"NULL",player1Email,player2Email));
-			// TODO: remove isSinglePlayer, "NULL", player1Email, player2Email
 		}
 	}
 	private void updatePlayerStats(String result) {
@@ -455,50 +524,7 @@ public class GameFragment extends Fragment {
 	}
 
 	private void listenToGameUpdates() {
-		mGameRef.addValueEventListener(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull DataSnapshot snapshot) {
-				GameData data = snapshot.getValue(GameData.class);
-				if (data != null) {
-//					otherForfeited = !(data.getWinner().equals("NULL"));
-					winner = data.winner;
-
-					if(!(winner.equals("NULL"))) { // Game has reached a conclusion
-						Log.d(TAG,"Winner is decided: "+winner);
-						if(winner.equals("draw")){
-							if(scoreUpdated == 0) {
-								updatePlayerStats("draw");
-								scoreUpdated++;
-							}
-							if(popCnt == 0) {
-								Log.d(TAG,"Draw in onDatachange");
-								showWinDialog("Draw");
-								popCnt++;
-							}
-						}
-						else{
-							if(scoreUpdated == 0) {
-							updatePlayerStats(winner.equals(mySymbol) ? "win" : "loss");
-								scoreUpdated++;
-							}
-							if(popCnt == 0) {
-								showWinDialog(winner);
-								popCnt++;
-							}
-						}
-					}
-					currentTurn = data.currentTurn;
-					gameState = data.gameState;
-					updateUI();
-					updateTurnUI();
-				}
-			}
-
-			@Override
-			public void onCancelled(@NonNull DatabaseError error) {
-				Log.e(TAG, "Failed to listen for game updates", error.toException());
-			}
-		});
+		mGameRef.addValueEventListener(listenToGameUpdatesListener);
 	}
 	
 	private void updateTurnUI(){
@@ -511,7 +537,7 @@ public class GameFragment extends Fragment {
 	}
 
 	private void showWinDialog(String winner) {
-		String dialogMessage="";
+		String dialogMessage;
 		if(winner.equals(mySymbol))
 		{
 			dialogMessage ="Congrats You Win!!";
