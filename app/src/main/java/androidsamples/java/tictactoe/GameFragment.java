@@ -2,7 +2,6 @@ package androidsamples.java.tictactoe;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -90,31 +89,46 @@ public class GameFragment extends Fragment {
 			mGameRef = database.getReference("games").child(mGameId);
 			Log.d(TAG, "Joining existing game with ID: " + mGameId);
 			
-			// One time retrieval when the game fragment is created/re-created
-			mGameRef.child("player1").get().addOnSuccessListener(snapshot -> {
-				player1Email = snapshot.getValue(String.class); // Assign the value to player1Email
-				Log.d(TAG, "Player 1 Email: " + player1Email); // Optional log
-			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch Player 1 Email", e));
-
-			// One time retrieval when the game fragment is created/re-created
-			mGameRef.child("isSinglePlayer").get().addOnSuccessListener(snapshot -> {
-				isSinglePlayer = Boolean.TRUE.equals(snapshot.getValue(boolean.class)); // Assign the value to player1Email
-				Log.d(TAG, "isSinglePlayer: " + isSinglePlayer); // Optional log
-			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch Player 1 Email", e));
-			
-			// One time retrieval when the game fragment is created/re-created
-			mGameRef.child("player2").get().addOnSuccessListener(snapshot -> {
-				player2Email = snapshot.getValue(String.class); // Assign the value to player1Email
-				Log.d(TAG, "Player 2 Email: " + player2Email);
+			// One-time retrieval on gameRef to get all data about the game when the fragment is created
+			mGameRef.get().addOnSuccessListener(snapshot -> {
+				GameData data = snapshot.getValue(GameData.class);
+				if(data == null){
+					Log.e(TAG, "GameData is null");
+					return;
+				}
+				
+				player1Email = data.getPlayer1(); // Assign the value to player1Email
+				Log.d(TAG, "onCreate: player1Email = " + player1Email);
+				
+				currentTurn = data.currentTurn;
+				Log.d(TAG, "onCreate: currentTurn = " + currentTurn);
+				
+				isSinglePlayer = data.isSinglePlayer;
+				Log.d(TAG, "onCreate: isSinglePlayer = " + isSinglePlayer);
+				
+				gameState = data.gameState;
+				
+				// On the off chance where something failed in an earlier run such that the computer was not able to make its move
+				// This will ensure that the computer makes its move
+				if (isSinglePlayer && currentTurn.equals("O")) {
+					makeComputerMove();
+					Log.d(TAG,"Computer move in view Created");
+					Log.d(TAG,"onViewCreated: gameState = " + gameState);
+					Map<String, Object> updates = new HashMap<>();
+					updates.put("currentTurn", currentTurn);
+					updates.put("gameState", gameState);
+					updateGameFields(mGameId, updates);
+				}
+				
+				player2Email = data.getPlayer2(); // Assign the value to player2Email
+				Log.d(TAG, "onCreate: player2Email = " + player2Email);
 				if(userEmail.equals(player1Email)) mySymbol = "X";
 				else mySymbol ="O";
-				Log.d(TAG, userEmail+" player1 " + player1Email + " mysymbol "+mySymbol);
+				Log.d(TAG, "onCreate: userEmail = " + userEmail + " player1Email = " + player1Email + " mySymbol = " + mySymbol);
 				String youAreText = "You are: " + mySymbol;
 				if(txtYouAre == null)Log.e(TAG,"txtYouAre is null");
 				else txtYouAre.setText(youAreText);
-				
-				joinExistingGame();
-			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch Player 2 Email", e));
+			}).addOnFailureListener(e -> Log.e(TAG, "Failed to fetch game data", e));
 		}
 		
 		mGameRef.child("winner").addValueEventListener(setWinner);
@@ -173,22 +187,7 @@ public class GameFragment extends Fragment {
 			mButtons[i].setOnClickListener(v -> handleMove(finalI));
 		}
 		updateContentDescription();
-		if (!isSinglePlayer) {
-			listenToGameUpdates();
-		}
-        else{
-			if(currentTurn.equals("O")){
-				makeComputerMove();
-				Log.d(TAG,"Computer move in view Created");
-				Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
-				Map<String, Object> updates = new HashMap<>();
-				updates.put("currentTurn",currentTurn);
-				updates.put("gameState",gameState);
-				updateGameFields(mGameId, updates);
-			}
-			
-			mGameRef.child("currentTurn").addValueEventListener(turnUIEventListener);
-		}
+		listenToGameUpdates();
 		
 		txtTurn = view.findViewById(R.id.txt_turn);
 		txtYouAre = view.findViewById(R.id.txt_you_are);
@@ -208,19 +207,6 @@ public class GameFragment extends Fragment {
 		@Override
 		public void onCancelled(@NonNull DatabaseError error) {
 			Log.e(TAG, "Failed to fetch winner", error.toException());
-		}
-	};
-	
-	private final ValueEventListener turnUIEventListener = new ValueEventListener() {
-		@Override
-		public void onDataChange(@NonNull DataSnapshot snapshot) {
-			Log.d(TAG, "turnUIEventListener: onDataChange: updating turn ui");
-			updateTurnUI();
-		}
-		
-		@Override
-		public void onCancelled(@NonNull DatabaseError error) {
-			Log.e(TAG, "Failed to fetch current turn", error.toException());
 		}
 	};
 	
@@ -327,7 +313,6 @@ public class GameFragment extends Fragment {
 		mGameRef.child("winner").removeEventListener(winnerUIListener);
 		mGameRef.removeEventListener(listenToGameUpdatesListener);
 		mGameRef.child("player2").removeEventListener(player2Listener);
-		mGameRef.child("currentTurn").removeEventListener(turnUIEventListener);
 		Log.d(TAG, "onDetach: removed valueEventListeners");
 	}
 
@@ -350,28 +335,7 @@ public class GameFragment extends Fragment {
 			updateContentDescription(i);
 		}
 	}
-
-	private void joinExistingGame() {
-		mGameRef.addListenerForSingleValueEvent(new ValueEventListener() {
-			@Override
-			public void onDataChange(@NonNull DataSnapshot snapshot) {
-				GameData data = snapshot.getValue(GameData.class);
-				if (data != null) {
-					currentTurn = data.currentTurn;
-					gameState = data.gameState;
-					Log.d(TAG, "Successfully joined game with ID: " + mGameId);
-					updateUI();
-				} else {
-					Log.e(TAG, "Game not found in database with ID: " + mGameId);
-				}
-			}
-			@Override
-			public void onCancelled(@NonNull DatabaseError error) {
-				Log.e(TAG, "Failed to fetch game data", error.toException());
-			}
-		});
-	}
-
+	
 	private void handleMove(int index) {
 		if ( !(winner.equals("NULL")) || (!gameState.get(index).isEmpty() || (!currentTurn.equals(mySymbol))) ){
 			return;
@@ -397,7 +361,8 @@ public class GameFragment extends Fragment {
 				showWinDialog(currentTurn);
 				popCnt++;
 			}
-		} else if (isDraw()) {
+		}
+		else if (isDraw()) {
 			Map<String, Object> updates = new HashMap<>();
 			updates.put("currentTurn",currentTurn);
 			updates.put("gameState",gameState);
@@ -414,29 +379,28 @@ public class GameFragment extends Fragment {
 				showWinDialog("Draw");
 				popCnt++;
 			}
-		} else {
+		}
+		else {
 			switchTurn();
-			//For sleeping
-
-			if (isSinglePlayer && currentTurn.equals("O")) {
-				new Handler().postDelayed(() -> {
-					Log.d(TAG,"Computer move");
-					makeComputerMove();
-					Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
-					Map<String, Object> updates = new HashMap<>();
-					updates.put("currentTurn",currentTurn);
-					updates.put("gameState",gameState);
-					updateGameFields(mGameId, updates);
-					return;
-				}, 0);
-			}
-//			sleep(1000);
-
-			Log.d(TAG,"Before database setting value gamestate array "+gameState.toString() );
+			
+			// This stores the user's move
+			Log.d(TAG,"handleMove: after user move gameState = " + gameState.toString() );
 			Map<String, Object> updates = new HashMap<>();
 			updates.put("currentTurn",currentTurn);
 			updates.put("gameState",gameState);
 			updateGameFields(mGameId, updates);
+
+			if (isSinglePlayer && currentTurn.equals("O")) {
+//				makeComputerMove(false);
+				makeComputerMove();
+				Log.d(TAG,"Computer move");
+				Log.d(TAG,"handleMove: after computer move gameState = " + gameState.toString() );
+				updates = new HashMap<>();
+				updates.put("currentTurn",currentTurn);
+				updates.put("gameState",gameState);
+				updateGameFields(mGameId, updates);
+//				new Handler().postDelayed(this::updateUI, 0);
+			}
 		}
 	}
 	private void updatePlayerStats(String result) {
@@ -491,6 +455,30 @@ public class GameFragment extends Fragment {
 		} else {
 			switchTurn();
 		}
+	}
+	
+	private void makeComputerMove(boolean updateUI){
+		Log.d(TAG, "makeComputerMove: called");
+		Log.d(TAG, "updateUI = " + updateUI);
+		Random random = new Random();
+		int move;
+		do {
+			move = random.nextInt(GRID_SIZE);
+		} while (!gameState.get(move).isEmpty());
+		
+		gameState.set(move, currentTurn);
+		if(updateUI) updateUI();
+		
+		if (checkWin()) {
+			mGameRef.child("winner").setValue(currentTurn);
+			showWinDialog(currentTurn);
+		} else if (isDraw()) {
+			mGameRef.child("winner").setValue("Draw");
+			showWinDialog("Draw");
+		} else {
+			switchTurn();
+		}
+		Log.d(TAG, "makeComputerMove: over");
 	}
 
 	private boolean checkWin() {
