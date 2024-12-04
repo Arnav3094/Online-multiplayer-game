@@ -529,7 +529,7 @@ public class GameFragment extends Fragment {
 	
 	private void updateTurnUI(){
 		boolean myTurn = currentTurn.equals(mySymbol);
-		Log.d(TAG,"Current turn: " + currentTurn + " mySymbol: " + mySymbol);
+		Log.d(TAG,"updateTurnUI: currentTurn: " + currentTurn + " mySymbol: " + mySymbol);
 		txtTurn.setVisibility(myTurn ? View.VISIBLE : View.INVISIBLE);
 		for(Button button : mButtons){
 			button.setEnabled(myTurn);
