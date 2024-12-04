@@ -145,7 +145,7 @@ public class GameFragment extends Fragment {
 								Log.d(TAG, "User confirmed forfeit. Navigating back.");
 								// Loss for the player who forfeited
 								gViewModel.popCnt++;
-								updatePlayerStats("loss");
+								if(!player2Email.equals("NULL")) updatePlayerStats("loss");
 								gViewModel.scoreUpdated++;
 								mGameRef.child("winner").setValue((Objects.equals(mySymbol, "X"))?"O":"X");
 								Log.d(TAG,"Number of popups: "+gViewModel.popCnt+" player score changed: "+gViewModel.scoreUpdated);
