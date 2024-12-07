@@ -232,6 +232,7 @@ public class DashboardFragment extends Fragment {
 
 		if (mPlayerStatsRef != null) {
 			mPlayerStatsRef.addValueEventListener(statsListener);
+			Log.d(TAG,"Added Stats listener to mPlayerStatsRef");
 		}
 		else{
 			Log.e(TAG, "fetchPlayerStats: Player stats reference is null");
@@ -255,13 +256,21 @@ public class DashboardFragment extends Fragment {
 			Log.e(TAG, "fetchPlayerStats: Database error", error.toException());
 		}
 	};
-	
+
 	@Override
 	public void onDetach() {
 		super.onDetach();
-		Log.d(TAG, "onDetach: Removing ValueEventListener");
-		mPlayerStatsRef.removeEventListener(statsListener);
+		Log.d(TAG, "onDetach: Attempting to remove ValueEventListener");
+
+		// Check if the DatabaseReference and Listener are not null
+		if (mPlayerStatsRef != null && statsListener != null) {
+			mPlayerStatsRef.removeEventListener(statsListener);
+			Log.d(TAG, "onDetach: ValueEventListener removed");
+		} else {
+			Log.d(TAG, "onDetach: No ValueEventListener to remove");
+		}
 	}
+
 
 	@Override
 	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
