@@ -234,11 +234,14 @@ public class GameFragment extends Fragment {
 						}
 					}
 					else{
+
 						if(gViewModel.scoreUpdated == 0) {
+							Log.d(TAG,"onDataChange: scoreUpdated");
 							updatePlayerStats(winner.equals(mySymbol) ? "win" : "loss");
 							gViewModel.scoreUpdated++;
 						}
 						if(gViewModel.popCnt == 0) {
+							Log.d(TAG,"onDataChange: showing popup");
 							showWinDialog(winner);
 							gViewModel.popCnt++;
 						}
@@ -309,11 +312,16 @@ public class GameFragment extends Fragment {
 		super.onDetach();
 		Log.d(TAG, "onDetach: called");
 		Log.d(TAG, "onDetach: removing valueEventListeners");
-		mGameRef.child("winner").removeEventListener(setWinner);
-		mGameRef.child("winner").removeEventListener(winnerUIListener);
-		mGameRef.removeEventListener(listenToGameUpdatesListener);
-		mGameRef.child("player2").removeEventListener(player2Listener);
-		Log.d(TAG, "onDetach: removed valueEventListeners");
+		if(mGameRef != null){
+			mGameRef.child("winner").removeEventListener(setWinner);
+			mGameRef.child("winner").removeEventListener(winnerUIListener);
+			mGameRef.removeEventListener(listenToGameUpdatesListener);
+			mGameRef.child("player2").removeEventListener(player2Listener);
+			Log.d(TAG, "onDetach: removed valueEventListeners");
+		}
+		else{
+			Log.d(TAG, "onDetach: mgameref is null");
+		}
 	}
 
 	private void updateContentDescription(int i){
@@ -382,7 +390,6 @@ public class GameFragment extends Fragment {
 		}
 		else {
 			switchTurn();
-			
 			// This stores the user's move
 			Log.d(TAG,"handleMove: after user move gameState = " + gameState.toString() );
 			Map<String, Object> updates = new HashMap<>();
@@ -448,38 +455,31 @@ public class GameFragment extends Fragment {
 
 		if (checkWin()) {
 			mGameRef.child("winner").setValue(currentTurn);
-			showWinDialog(currentTurn);
-		} else if (isDraw()) {
-			mGameRef.child("winner").setValue("Draw");
-			showWinDialog("Draw");
-		} else {
-			switchTurn();
-		}
-	}
-	
-	private void makeComputerMove(boolean updateUI){
-		Log.d(TAG, "makeComputerMove: called");
-		Log.d(TAG, "updateUI = " + updateUI);
-		Random random = new Random();
-		int move;
-		do {
-			move = random.nextInt(GRID_SIZE);
-		} while (!gameState.get(move).isEmpty());
-		
-		gameState.set(move, currentTurn);
-		if(updateUI) updateUI();
-		
-		if (checkWin()) {
+			if(gViewModel.scoreUpdated == 0) {
+				gViewModel.scoreUpdated++;
+				updatePlayerStats("loss");
+			}
+			if(gViewModel.popCnt == 0) {
+				Log.d(TAG,"Showing Popup in computer move");
+				gViewModel.popCnt++;
+				showWinDialog(currentTurn);
+			}
 			mGameRef.child("winner").setValue(currentTurn);
-			showWinDialog(currentTurn);
 		} else if (isDraw()) {
+			if(gViewModel.scoreUpdated == 0) {
+				gViewModel.scoreUpdated++;
+				updatePlayerStats("draw");
+			}
+			if(gViewModel.popCnt == 0) {
+				gViewModel.popCnt++;
+				showWinDialog("draw");
+			}
 			mGameRef.child("winner").setValue("Draw");
-			showWinDialog("Draw");
 		} else {
 			switchTurn();
 		}
-		Log.d(TAG, "makeComputerMove: over");
 	}
+
 
 	private boolean checkWin() {
 		int[][] winConditions = {
@@ -544,15 +544,11 @@ public class GameFragment extends Fragment {
 			dialogMessage ="You Lost :(";
 		}
 		String message = "Draw".equals(winner) ? "It's a draw!" : dialogMessage;
-		if (!"Draw".equals(winner) && winner.equals(mySymbol)) {
-			updatePlayerStats("win");
-		} else if (!"Draw".equals(winner)) {
-			updatePlayerStats("loss");
-		}
 		if(getActivity() == null){
 //			Log.e(TAG,"Activity is null");
 			return;
 		}
+		Log.d(TAG,"showWinDialog: Showing popup"+dialogMessage);
 		new AlertDialog.Builder(getActivity())
 				.setTitle("Game Over")
 				.setMessage(message)
