@@ -1,10 +1,6 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/IH-L4O39)
 # Tic Tac Toe
 
-Assignment A4 for the course CS F314
-
-This is a starter code for the Tic Tac Toe multiplayer game app assignment.
-
 It uses Android Navigation Component, with a single activity and three fragments:
 
 - The DashboardFragment is the home screen. If a user is not logged in, it should navigate to the
@@ -82,9 +78,6 @@ The app was put through over 100K events and no crashes were observed.
 
 ## Pair Programming Used
 4/5
-
-## Assignment difficulty
-9.5/10
 
 ## Attribution
 - [Assignment Documentation]()  
